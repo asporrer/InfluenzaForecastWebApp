@@ -2,13 +2,44 @@
 
 {% block title %}Influenza Project{% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="/static/css/fpslide.css">
+{% endblock %}
+
 {% block page_content %}
 <h1>Influenza Project</h1>
+<p> What's the goal of this jupyter notebook?
+To forecast the reported number of influenza infections.
+What are the benefits of this goal?
+Hospitals and doctor's offices and companies would be able to plan in advance. The medical sector would be prepared for a higher influx of influenza patients. These patients could be treated more effectively and clogging could be prevent. General companies could prepare their schedules for an increased number of absences.
+What data is used?
+1. The [Robert Koch Institute](https://survstat.rki.de/Content/Query/Create.aspx) provides the reported number of influenza cases in Germany on a state level per week. To detect an influenza infection a laboratory test has to be performed. Therefore only a fraction of people infected by and suffereing from influenza are detected. Despite this fact up to a factor the reported number of influenza cases should be a good proxy for the actual number of influenza cases.
+2. The [Deutscher Wetterdienst](ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/historical/) provides weather data for Germany on a daily basis. For instance mean, min, max of temperatur, relative humidity and precipitation.
+3. [Google Flu Trends](https://www.google.org/flutrends/about/) provides numbers reflecting the frequency of influenza related search queries on a state level per week.</p>
+<div id="vis" align="center">
+    <select id="fpsDD"></select>
+    <svg id="svgId"></svg>
+  <button id="play-button">Play</button>
+</div>
+<p> Exploratory Visualization
+First let's visualize the normalized reported influenza cases in the sixteen states of Germany.
+The plot is at first sight a bit messy. To ***hide/unhide*** particular states just **click on the state** in the legend. This will make the plot clearer.
+But this messy plot conveys at least two important messages.
+1. First we can see that influenza occurs in waves. Approximately one wave per winter.
+The waves can rise and fall sharply.
+2. Second the start of the waves in different states seem to coincide roughly.</p>
+<div align="center">
+{{ script|safe }}
+{{ div|safe }}
+</div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="/static/js/fpslide.js"></script>
+
+<script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.11.min.js"></script>
+<script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.11.min.js"></script>
 {% endblock %}
-
-
