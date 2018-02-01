@@ -4,6 +4,7 @@
 
 {% block head %}
 {{ super() }}
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.css" type="text/css" />
 <link rel="stylesheet" type="text/css" href="/static/css/fpslide.css">
 {% endblock %}
 
@@ -30,16 +31,23 @@ But this messy plot conveys at least two important messages.
 The waves can rise and fall sharply.
 2. Second the start of the waves in different states seem to coincide roughly.</p>
 <div align="center">
-{{ script|safe }}
-{{ div|safe }}
+{{ script_vanilla|safe }}
+{{ div_vanilla|safe }}
+</div>
+<div align="center">
+{{ script_overall_cases|safe }}
+{{ div_overall_cases|safe }}
+</div>
+<div align="center">
+{{ script_wave_stats|safe }}
+{{ div_wave_stats|safe }}
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
+<script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.13.min.js"></script>
+<script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="/static/js/fpslide.js"></script>
-
-<script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.11.min.js"></script>
-<script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.11.min.js"></script>
 {% endblock %}

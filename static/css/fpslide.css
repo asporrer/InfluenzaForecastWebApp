@@ -1,7 +1,7 @@
 body {
   font-family:"avenir next", Arial, sans-serif;
   font-size: 12px;
-  color: #696969;
+  color: #000;
 }
 
 #vis {
@@ -26,10 +26,9 @@ body {
   top: 33px;
   left: 40px;
   background: #dcdcdc;
-    border: 1px solid #AAA;
   padding-right: 26px;
   border-radius: 3px;
-  border: 1px fill=;
+  border: 1px solid #AAA;
   color: #000;
   margin: 0;
   padding: 0 12px;
