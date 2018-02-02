@@ -23,6 +23,8 @@ What data is used?
     <svg id="svgId"></svg>
   <button id="play-button">Play</button>
 </div>
+
+
 <p> Exploratory Visualization
 First let's visualize the normalized reported influenza cases in the sixteen states of Germany.
 The plot is at first sight a bit messy. To ***hide/unhide*** particular states just **click on the state** in the legend. This will make the plot clearer.
@@ -38,10 +40,29 @@ The waves can rise and fall sharply.
 {{ script_overall_cases|safe }}
 {{ div_overall_cases|safe }}
 </div>
-<div align="center">
-{{ script_wave_stats|safe }}
-{{ div_wave_stats|safe }}
+<div class="wrapperSelectFigure">
+    <div class="multiselectStates">
+        <select name="cars" id="waveStatisticsMultiselect" multiple>
+            {% for item in stateSequence -%}
+            <option value={{ item }}>{{ item }}</option>
+            {%- endfor %}
+        </select>
+            <input type="submit" id="confirmMultiselectWaveStatistics">
+    </div>
+    <div class="figureWithMultiselect">
+        <div id="placeForWaveStatisticsFigure">
+            {{ script_wave_stats|safe }}
+            {{ div_wave_stats|safe }}
+        </div>
+    </div>
 </div>
+
+
+
+
+
+
+
 {% endblock %}
 
 {% block scripts %}
@@ -50,4 +71,5 @@ The waves can rise and fall sharply.
 <script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="/static/js/fpslide.js"></script>
+<script src="/static/js/ajaxscripts.js"> </script>
 {% endblock %}

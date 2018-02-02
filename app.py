@@ -16,7 +16,7 @@ from bokeh.transform import linear_cmap
 from bokeh.layouts import column, row
 from bokeh.embed import components
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
@@ -29,7 +29,6 @@ moment = Moment(app)
 # Getting the data frame containing the features and target variable for all sixteen states from 2005 until 2015.
 with open(r'static\Data\datadf.pkl', 'rb') as file:
     data_df = pickle.load(file)
-
 
 
 @app.errorhandler(404)
@@ -59,9 +58,28 @@ def render_influenza_project():
     script_overall_cases, div_overall_cases = components(p_overall_reported_cases)
     script_wave_stats, div_wave_stats = components(p_wave_stats)
 
+    state_list = data_df['state'].unique().tolist()
+
     return render_template('InfluenzaProject.html', script_vanilla=script_vanilla, div_vanilla=div_vanilla,
                            script_overall_cases=script_overall_cases, div_overall_cases=div_overall_cases,
-                           script_wave_stats=script_wave_stats, div_wave_stats=div_wave_stats)
+                           script_wave_stats=script_wave_stats, div_wave_stats=div_wave_stats, stateSequence=state_list)
+
+
+@app.route('/waveStatisticsFigure')
+def wave_statistics_figure():
+    """
+    This function is called via an ajax. The code is located in ajaxscripts.js.
+
+    :return: A str, containing the respective html and javascript code.
+    """
+    # text = request.args.get('jsdata')
+    state_list = request.args.getlist('jsdata[]')
+
+    p_wave_stats = visualize_wave_stats_distributions(data_df, states=state_list)
+
+    script, div = components(p_wave_stats)
+    print(render_template('waveStatisticsFigure.html', script=script, div=div))
+    return render_template('waveStatisticsFigure.html', script=script, div=div)
 
 
 #######################
@@ -228,7 +246,7 @@ def visualize_wave_stats_distributions(input_df, states=['all']):
                                    bins=num_of_bins)
 
         p = figure(title=title_list[index], x_axis_label=x_labels_list[index], y_axis_label='Probabilities',
-                   plot_width=480, plot_height=480,)
+                   plot_width=400, plot_height=350,)
 
 
         p.xaxis[0].ticker.desired_num_ticks = 20

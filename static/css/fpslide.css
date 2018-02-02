@@ -37,7 +37,6 @@ body {
     z-index: 2;
 }
 
-
 .ticks {
   font-size: 10px;
 }
@@ -97,6 +96,62 @@ body {
    text-overflow: ellipsis;
    white-space: nowrap;
    width: 120px;
+    background: #dcdcdc;
+    cursor: pointer;
+    z-index: 3;
+}
+
+
+
+
+
+
+.wrapperSelectFigure {
+    width: 1000px;
+    /*border: 1px solid black;*/
+    overflow: hidden; /* add this to contain floated children */
+}
+
+.multiselectStates {
+    width: 170px;
+    height: 720px;
+    float:left; /* add this */
+    /*border: 1px solid red;*/
+}
+
+.figureWithMultiselect {
+    width: 820px;
+    /*border: 1px solid green;*/
+    float: right; /* add this */
+}
+
+
+
+
+
+#confirmMultiselectWaveStatistics {
+  background: #dcdcdc;
+  padding-right: 26px;
+  border-radius: 3px;
+  border: 1px solid #AAA;
+  color: #000;
+  margin: 0;
+  padding: 0 12px;
+  width: 160px;
+    z-index: 2;
+}
+
+
+#waveStatisticsMultiselect {
+    border: 1px solid #AAA;
+   color: #000;
+   font-size: inherit;
+   overflow: hidden;
+   padding: 6px 10px;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+   width: 160px;
+    height: 300px;
     background: #dcdcdc;
     cursor: pointer;
     z-index: 3;
