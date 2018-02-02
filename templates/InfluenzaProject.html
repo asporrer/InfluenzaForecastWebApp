@@ -5,7 +5,8 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.css" type="text/css" />
-<link rel="stylesheet" type="text/css" href="/static/css/fpslide.css">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fpslide.css') }}">
+<!--<link rel="stylesheet" type="text/css" href="/static/css/fpslide.css">-->
 {% endblock %}
 
 {% block page_content %}
@@ -70,6 +71,10 @@ The waves can rise and fall sharply.
 <script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.13.min.js"></script>
 <script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="/static/js/fpslide.js"></script>
-<script src="/static/js/ajaxscripts.js"> </script>
+
+<script src="{{ url_for('static', filename='js/fpslide.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ajaxscripts.js') }}"> </script>
+
+<!--<script src="/static/js/fpslide.js"></script>-->
+<!--<script src="/static/js/ajaxscripts.js"> </script>-->
 {% endblock %}

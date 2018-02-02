@@ -1,3 +1,4 @@
+import os
 from collections import OrderedDict
 from isoweek import Week
 
@@ -20,6 +21,17 @@ from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
+currDir = os.path.dirname(__file__)
+print(currDir)
+frist_step = os.path.split(currDir)
+print(frist_step)
+data_dir = os.path.join(currDir, "static")
+print(data_dir)
+data_dir = os.path.join(data_dir, "data")
+print(data_dir)
+data_location = os.path.join(data_dir, 'datadf.pkl')
+print(data_location)
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'd90Fj238A679bn940sn4Ghrq9b08a962Nvfm2390'
 
@@ -27,7 +39,7 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 
 # Getting the data frame containing the features and target variable for all sixteen states from 2005 until 2015.
-with open(r'static\Data\datadf.pkl', 'rb') as file:
+with open(data_location, 'rb') as file:
     data_df = pickle.load(file)
 
 
@@ -394,4 +406,5 @@ def kde_sklearn(x, x_grid, bandwidth=0.2, **kwargs):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(port=33507)
