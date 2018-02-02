@@ -3,6 +3,7 @@ requests==2.9.1
 isoweek
 pandas
 numpy
+scipy
 dill
 sklearn
 bokeh
