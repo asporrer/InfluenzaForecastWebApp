@@ -8,6 +8,8 @@ dill
 sklearn
 bokeh
 flask
+flask_bootstrap
+flask_moment
 jinja2
 pip
 simplejson
