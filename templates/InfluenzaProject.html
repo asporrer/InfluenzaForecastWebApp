@@ -6,7 +6,6 @@
 {{ super() }}
 <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.css" type="text/css" />
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fpslide.css') }}">
-<!--<link rel="stylesheet" type="text/css" href="/static/css/fpslide.css">-->
 {% endblock %}
 
 {% block page_content %}
@@ -43,12 +42,12 @@ The waves can rise and fall sharply.
 </div>
 <div class="wrapperSelectFigure">
     <div class="multiselectStates">
-        <select name="cars" id="waveStatisticsMultiselect" multiple>
+        <select class="multiSelect" id="waveStatisticsMultiselect" multiple>
             {% for item in stateSequence -%}
             <option value={{ item }}>{{ item }}</option>
             {%- endfor %}
         </select>
-            <input type="submit" id="confirmMultiselectWaveStatistics">
+            <input type="submit" class="confirmMultiSelect" id="confirmMultiselectWaveStatistics">
     </div>
     <div class="figureWithMultiselect">
         <div id="placeForWaveStatisticsFigure">
@@ -58,11 +57,29 @@ The waves can rise and fall sharply.
     </div>
 </div>
 
+<div class="wrapperSelectFigure">
+    <div class="multiselectStates">
+        <select class="multiSelect" id="waveStartVsIntensityMultiselect" multiple>
+            {% for item in stateSequence -%}
+            <option value={{ item }}>{{ item }}</option>
+            {%- endfor %}
+        </select>
+            <input type="submit" class="confirmMultiSelect" id="confirmMultiselectWaveStartVsInensityStatistics">
+    </div>
+    <div class="figureWithMultiselect">
+        <div id="placeForWaveStartVsIntensityFigure">
+            {{ script_wave_start_vs_intensity|safe }}
+            {{ div_wave_start_vs_intensity|safe }}
+        </div>
+    </div>
+</div>
 
-
-
-
-
+<div align="center" class="pagination">
+  <a href="#">&laquo;</a>
+  <a class="active" href="#">1</a>
+    <a href="{{ url_for('render_influenza_project2') }}">2</a>
+  <a href={{ url_for('render_influenza_project2') }}>&raquo;</a>
+</div>
 
 {% endblock %}
 
@@ -74,7 +91,4 @@ The waves can rise and fall sharply.
 
 <script src="{{ url_for('static', filename='js/fpslide.js') }}"></script>
 <script src="{{ url_for('static', filename='js/ajaxscripts.js') }}"> </script>
-
-<!--<script src="/static/js/fpslide.js"></script>-->
-<!--<script src="/static/js/ajaxscripts.js"> </script>-->
 {% endblock %}

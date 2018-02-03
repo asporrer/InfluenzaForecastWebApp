@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Influenza Project{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.css" type="text/css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fpslide.css') }}">
+{% endblock %}
+
+{% block page_content %}
+<h1>Influenza Project</h1>
+<div class="wrapperSelectFigure">
+
+    <div class="multiselectStates">
+        <select class="selectDropDown" id="featuresSingleSelect">
+            {% for item in stateSequence -%}
+            <option value={{ item }}>{{ item }}</option>
+            {%- endfor %}
+        </select>
+    </div>
+    <div class="figureWithMultiselect">
+        <div id="placeForFeaturesFigure">
+            {{ script_features|safe }}
+            {{ div_features|safe }}
+        </div>
+    </div>
+</div>
+
+<div align="center" class="pagination">
+  <a href="{{ url_for('render_influenza_project1') }}">&laquo;</a>
+  <a href="{{ url_for('render_influenza_project1') }}">1</a>
+  <a class="active" href="#">2</a>
+  <a href="#">&raquo;</a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.13.min.js"></script>
+<script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script src="{{ url_for('static', filename='js/fpslide.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ajaxscripts.js') }}"> </script>
+{% endblock %}
