@@ -53,15 +53,19 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/InfluenzaProject', methods=['GET'])
+@app.route('/InfluenzaProject1', methods=['GET'])
 def render_influenza_project1():
+    return render_template('InfluenzaProject1.html')
+
+
+@app.route('/InfluenzaProject2', methods=['GET'])
+def render_influenza_project2():
     # Generate plots
     p_vanilla_influenza = visualize_state_commonalities(data_df)
     p_overall_reported_cases = visualize_overall_reported_cases(data_df)
     p_wave_stats = visualize_wave_stats_distributions(data_df)
     p_start_vs_severity = visualize_wave_start_vs_severity_via_box(data_df)
     p_start_vs_length = visualize_wave_start_vs_length_via_box(data_df)
-    p_wave_features = visualize_data_per_state(data_df)
 
 
     # Embed plots into HTML via Flask Render
@@ -69,21 +73,18 @@ def render_influenza_project1():
     script_overall_cases, div_overall_cases = components(p_overall_reported_cases)
     script_wave_stats, div_wave_stats = components(p_wave_stats)
     script_wave_start_vs_intensity, div_wave_start_vs_intensity = components(row(p_start_vs_severity, p_start_vs_length))
-    script_features, div_features = components(p_wave_features)
     state_list = data_df['state'].unique().tolist()
 
-    return render_template('InfluenzaProject.html', script_vanilla=script_vanilla, div_vanilla=div_vanilla,
+    return render_template('InfluenzaProject2.html', script_vanilla=script_vanilla, div_vanilla=div_vanilla,
                            script_overall_cases=script_overall_cases, div_overall_cases=div_overall_cases,
                            script_wave_stats=script_wave_stats, div_wave_stats=div_wave_stats,
                            script_wave_start_vs_intensity=script_wave_start_vs_intensity,
                            div_wave_start_vs_intensity=div_wave_start_vs_intensity,
-                           script_features=script_features,
-                           div_features=div_features,
                            stateSequence=state_list)
 
 
-@app.route('/InfluenzaProject2', methods=['GET'])
-def render_influenza_project2():
+@app.route('/InfluenzaProject3', methods=['GET'])
+def render_influenza_project3():
     # Generate plots
     p_wave_features = visualize_data_per_state(data_df)
 
@@ -91,7 +92,7 @@ def render_influenza_project2():
     script_features, div_features = components(p_wave_features)
     state_list = data_df['state'].unique().tolist()
 
-    return render_template('InfluenzaProject2.html',
+    return render_template('InfluenzaProject3.html',
                            script_features=script_features,
                            div_features=div_features,
                            stateSequence=state_list)
@@ -559,7 +560,7 @@ def box_plot(x_list, y_list, x_cat_unique_display_order_list, title="", x_axis_l
     p.xgrid.grid_line_color = None
     p.ygrid.grid_line_color = "white"
     p.grid.grid_line_width = 2
-    p.xaxis.major_label_text_font_size = "12pt"
+    #p.xaxis.major_label_text_font_size = "12pt"
     p.xaxis.major_label_orientation = 3.0 / 4
 
     return p

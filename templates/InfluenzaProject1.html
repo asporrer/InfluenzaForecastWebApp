@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Influenza Project{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.css" type="text/css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fpslide.css') }}">
+{% endblock %}
+
+{% block page_content %}
+<h1>Influenza Project</h1>
+<div class="divLegend">
+    <ol>
+        <li> <a class="aLegend" href="#">What is the project about?</a> </li>
+        <li> <a class="aLegend" href="{{ url_for('render_influenza_project2') }}" >What are the statistics of the influenza virus?</a> </li>
+        <li> <a class="aLegend" href="{{ url_for('render_influenza_project3') }}">How to forecast the number of influenza infections?</a> </li>
+    </ol>
+</div>
+<p>
+    This page and the following two pages give an overview on the influenza project. Each page provides an
+    answer to one of the above questions.
+    <br>
+    <br>
+    The first question will be treated in next paragraphs by first giving a brief overview on the project. The goal of
+    the project and its benefit as well as the used data and the basic structure of the machine learning model. Then the main
+    result is visualized. The main result is a the machine learning model for classifying the influenza infection numbers eleven weeks in advance.
+    On the next page the second question will be addressed by providing some insights into the typical behavior of an influenza
+    wave. For instance the relation between starting date and length of the wave or state-wise differences in the
+    influenza severity are such typical characteristics. These characteristics can be used to narrow down the wave start of
+    the influenza wave and if the start of the wave is known the severity and duratin of the week can be estimated.
+    The third page will then answer the last question by going into more detail about the machine learning model and the
+    underlying features used for the prediction.
+</p>
+<p class="pLargeHeading">
+    1. What is the project about?
+</p>
+<p>
+    <p class="pSmallHeading">
+        What is the goal and what are its benefits?
+    </p>
+    The goal of this project is to forecast the reported number of influenza infections on a state level in Germany.
+    The question of whether such a forecast would be possible was posed by a company in the insurance industry. Benefits of
+    such an forecast are that hospitals and doctor's offices and companies in general would be able to plan according to
+    the forecast. The medical sector would be prepared for a higher influx of influenza patients. These patients could be
+    treated more effectively and clogging could be prevent. Further, companies in general could prepare their schedules for
+    an increased number of absences.
+</p>
+<p>
+    <p class="pSmallHeading">
+        What is the general approach to achieve this goal?
+    </p>
+    This problem can be framed as a typical machine learning problem. In the sense that a machine learning model is trained to
+    forecast the influenza progression 1, 2, 3, ... 10, 11 weeks in advance using data of the past ten weeks in our case.
+</p>
+<p>
+    <p class="pSmallHeading">
+        What data is available?
+    </p>
+    Researching the internet for promising data led to the following sources.
+    First, the <a href="https://survstat.rki.de/Content/Query/Create.aspx">Robert Koch Institute</a> provides the reported number of influenza cases from 2001 until 2017 in Germany on a state level per week. To detect an influenza infection a laboratory test has to be performed. Therefore only a fraction of people infected by and suffering from influenza are detected. Despite this fact up to a factor the reported number of influenza cases should be a good proxy for the actual number of influenza cases.
+    Second, <a href="ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/historical/">Deutscher Wetterdienst</a> provides weather data for Germany on a daily basis. For instance mean, min, max of temperatur, relative humidity and precipitation.
+    Third, <a href="https://www.google.org/flutrends/about/">Google Flu Trends</a> provides numbers from 2003 until 2015 reflecting the frequency of influenza related search queries on a state level per week.
+</p>
+<p>
+    <p class="pSmallHeading">
+        What are the approach specifics?
+    </p>
+    The problem can be framed at least in two ways. Either a regression problem that is to say the exact number of influenza infections is predicted x weeks in advance.
+    Or the problem is framed as a classification problem in which the prediction is whether a certain threshold is crossed in the week x. It turns out that classification
+    of whether a certain threshold of reported influenza infections was crossed could be performed quite reliably. Although it would be nice to predict the exact number
+    of infections the classification on the one hand provides sufficient information to predict the start end and intensity of the wave 11 weeks in advance. On the other hand
+    it turned out that only framing the problem as a classification problem made it possible to forecast 11 weeks in advance which is crucial for preparing properly for a wave.
+
+    After gaining this insight two thresholds were chosen, namely 0.8 and 7.0 reported cases of influenza per 100 000 inhabitants. The threshold 0.8 was chosen since
+    it is relatively likely that an influenza wave starts once this threshold is crossed. On the other hand once the threshold of 7.0 is crossed the wave is relatively severe.
+
+    This successful classification approach is presented in the following.
+    <br>
+    <br>
+    The basic usual structure is a rolling window. That is to say if for example the current week of the year is the week 12
+    then the above stated data for the week 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 of the current year are considered to predict
+    the influenza situation in a specific state in week 13, 14, 15, 16, ... 23 of the current year.
+    Accordingly in week 13 the data of week 4, 5, ... 12, 13 is used to predict the influenza situation in a specific state in week 14, 15, ... , 24.
+    <br>
+    <br>
+    To be precise not one classification model is trained to make predictions 1,2, ..., 11 weeks in advance but for each of the eleven forecasting periods two models are trained.
+    One for the threshold 0.8 and one for the threshold 7.0. Therefore in sum 22 models are trained.
+    A more details description of the model and the approach is presented on <a href="{{ url_for('render_influenza_project3') }}">page 3</a>.
+    In the following plot we can observe this classification model or rather the classification models at work.
+    These models were trained on the period 2005 until April 2012 and form September 2013 till 2015. The figure illustrates
+    the predictions of the models in the previously unseen period June 2012 until August 2013.
+</p>
+
+<div id="vis" align="center">
+    <select id="fpsDD"></select>
+    <svg id="svgId"></svg>
+    <button id="play-button">
+        Play
+    </button>
+</div>
+
+<p>
+    <p class="pSmallHeading">
+        How to interpret the figure?
+    </p>
+    At the top of the figure a drop down menu is located. By selecting a specific state the data and the predictions for
+    the selected state is loaded and can be explored. The coordinate system has dates on the x-axis and the number of
+    reported influenza infections per 100 000 inhabitants on the y-axis. The dotted line represents the start of the first
+    week in the future. In other words everything to the left of the dotted line represents the past and everything to the right of the dotted
+    line represents the future. There we should position ourselves just to the left of the dotted line and image that we
+    want to predict the influenza behavior to the right of the dotted line. The crucial point of this visualization is that
+    the date located at the dotted line changes when using the play button located to the left of the drop down menu or the
+    slider to the right of the drop down menu. Thus when the date at the dotted line changes we should image ourselves at
+    a different point in time but again with the task to predict the influenza behavior to the right of the dotted line.
+    The gray curve represents the actual number of influenza cases. Our machine learning models know the actual number of
+    influenza cases to the left of the dotted line and in addition we know the google trends data to the left of the dotted
+    line as well as the reported number of influenza cases for Germany as a whole. Although displayed in the above figure
+    our models does not know the actual number of reported influenza cases to the right of the dotted line neither any other
+    data about this future period. The output of our models are the orange and the red curve. They indicate by taking on the
+    value 0.8 for orange and 7.0 for red to predict that the number of influenza cases cross the respective threshold. We are
+    therefore in the position to check if the models provide sufficient predictions of whether the thresholds will be crossed
+    with respect to each of the coming eleven weeks.
+</p>
+<br>
+<br>
+<p>
+    <p class="pSmallHeading">
+        Page Summary:
+    </p>
+        On this page the goal of this project which is to forecast the number of reported influenza infections was introduced.
+        The available data was presented. This were the reported influenza of influenza infections on a state level and
+        for Germany as a whole and the Google trends data on a state level an for Germany as a whole as well as weather data
+        like temperature, precipitation and humidity. Further the basic structure of the machine learning approach was presented.
+        Namely, the problem is framed as a classification problem with respect two thresholds. And to predict
+        eleven weeks in advance for two thresholds 22 classification models are trained one model per threshold and week.
+        Finally, the above figure visualized the predictive power of this machine learning model.
+    <br>
+    <br>
+    On the next page we mainly focus on the reported numbers of influenza infections and provide
+    some insights into typical influenza wave behavior.
+</p>
+
+<div align="center" class="pagination">
+  <a href="#">&laquo;</a>
+  <a class="active" href="#">1</a>
+    <a href="{{ url_for('render_influenza_project2') }}">2</a>
+    <a href="{{ url_for('render_influenza_project3') }}">3</a>
+  <a href="{{ url_for('render_influenza_project2') }}">&raquo;</a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.13.min.js"></script>
+<script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script src="{{ url_for('static', filename='js/fpslide.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ajaxscripts.js') }}"> </script>
+{% endblock %}
