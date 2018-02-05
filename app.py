@@ -638,5 +638,5 @@ def visualize_data_per_state(input_df, state_str="Baden-Wuerttemberg"):
 
 
 if __name__ == "__main__":
-     app.run(debug=True)
-    # app.run(port=33507)
+     # app.run(debug=True)
+    app.run(port=33507)
