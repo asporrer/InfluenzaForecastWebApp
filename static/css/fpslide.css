@@ -94,15 +94,15 @@ body {
 .wrapperSelectFigure4Plots {
     width: 100%;
     height: 730px;
-    /*border: 1px solid black;*/
-    overflow: auto; /* add this to contain floated children */
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .wrapperSelectFigure2Plots {
     width: 100%;
     height: 390px;
-    /*border: 1px solid black;*/
-    overflow: auto; /* add this to contain floated children */
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .multiselectStates4Plots {
