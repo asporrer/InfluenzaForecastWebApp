@@ -10,11 +10,11 @@
 
 {% block page_content %}
 <h1>Influenza Project</h1>
-<div class="divLegend">
+<div class="divContentTable">
     <ol>
-        <li class="notCurrentLiLegend"><a class="aLegend" href="{{ url_for('render_influenza_project1') }}">What is the project about?</a></li>
-        <li> <a class="aLegend" href="#">What are the statistics of the influenza virus?</a> </li>
-        <li class="notCurrentLiLegend"> <a class="aLegend" href="{{ url_for('render_influenza_project3') }}">How to forecast the number of influenza infections?</a> </li>
+        <li class="notCurrentLiContentTable"><a class="aContentTable" href="{{ url_for('render_influenza_project1') }}">What is the project about?</a></li>
+        <li> <a class="aContentTable" href="#">What are the statistics of the influenza virus?</a> </li>
+        <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project3') }}">How to forecast the number of influenza infections?</a> </li>
     </ol>
 </div>
 <p>
@@ -29,7 +29,7 @@
     Second the progressions of the waves in different states seem to coincide roughly. Thus a rising number of reported number
     of influenza infections in one state is an indicator of the rise of reported influenza infections in other states with a low number of reported infections.
 </p>
-<div align="center">
+<div id="vanillaDiv" class="scrollableFigureDiv" align="center">
 {{ script_vanilla|safe }}
 {{ div_vanilla|safe }}
 </div>
@@ -45,10 +45,11 @@
     the more similar influenza intensity of the members of one group.
 </p>
 
-<div align="center">
+<div align="center" class="scrollableFigureDiv">
 {{ script_overall_cases|safe }}
 {{ div_overall_cases|safe }}
 </div>
+
 
 <p>
     <br>
@@ -62,16 +63,16 @@
     period for a wave start. This start likely occurs in the first eight weeks of the year.
 </p>
 
-<div class="wrapperSelectFigure">
+<div class="wrapperSelectFigure4Plots">
     <div class="multiselectStates4Plots">
         <select class="multiSelect" id="waveStatisticsMultiselect" size={{stateSequence|length}} multiple>
             {% for item in stateSequence -%}
             <option value={{ item }}>{{ item }}</option>
             {%- endfor %}
         </select>
-            <input type="submit" class="confirmMultiSelect" id="confirmMultiselectWaveStatistics">
+            <input type="submit" class="confirmMultiSelect" id="confirmMultiselectWaveStatistics" value="Calculate Histograms">
     </div>
-    <div class="figureWithMultiselect">
+    <div class="figureWithMultiselect4Plots">
         <div id="placeForWaveStatisticsFigure">
             {{ script_wave_stats|safe }}
             {{ div_wave_stats|safe }}
@@ -88,16 +89,16 @@
     can be narrowed down further.
 </p>
 
-<div class="wrapperSelectFigure">
+<div class="wrapperSelectFigure2Plots">
     <div class="multiselectStates2Plots">
         <select class="multiSelect" id="waveStartVsIntensityMultiselect" size={{stateSequence|length}} multiple>
             {% for item in stateSequence -%}
             <option value={{ item }}>{{ item }}</option>
             {%- endfor %}
         </select>
-            <input type="submit" class="confirmMultiSelect" id="confirmMultiselectWaveStartVsInensityStatistics">
+        <input type="submit" class="confirmMultiSelect" id="confirmMultiselectWaveStartVsInensityStatistics" value="Calculate Boxplots">
     </div>
-    <div class="figureWithMultiselect">
+    <div class="figureWithMultiselect2Plots">
         <div id="placeForWaveStartVsIntensityFigure">
             {{ script_wave_start_vs_intensity|safe }}
             {{ div_wave_start_vs_intensity|safe }}
@@ -116,7 +117,7 @@
     On the next page we will switch our focus to the classification model.
 </p>
 
-<div align="center" class="pagination">
+<div class="pagination1">
   <a href="{{ url_for('render_influenza_project1') }}">&laquo;</a>
   <a href="{{ url_for('render_influenza_project1') }}">1</a>
   <a class="active" href="#">2</a>

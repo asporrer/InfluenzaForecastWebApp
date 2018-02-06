@@ -22,7 +22,7 @@ var xScaleRangeEnd = coordinateSystemXRight;
 var yScaleRangeStart = coordinateSystemYBottom;
 var yScaleRangeEnd = coordinateSystemYTop;
 
-var slider_range_start = 260;
+var slider_range_start = margin.left; // 260 for layout with integrated buttons.
 var slider_range_end = width + 30;
 
 var ysliderRange = 30;
@@ -57,7 +57,9 @@ function onchange() {
 var svg = d3.select("#svgId")
     .append("svg")
     .attr("width", svgWidth)
-    .attr("height", svgHeight);
+    .attr("height", svgHeight)
+    .attr("viewBox", "0 0 1000 550")  // added
+    .attr("preserveAspectRatio", "xMinYMin meet"); // added
 
 
 

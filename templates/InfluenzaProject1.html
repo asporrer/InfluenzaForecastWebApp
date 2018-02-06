@@ -10,11 +10,11 @@
 
 {% block page_content %}
 <h1>Influenza Project</h1>
-<div class="divLegend">
+<div class="divContentTable">
     <ol>
-        <li> <a class="aLegend" href="#">What is the project about?</a> </li>
-        <li> <a class="aLegend" href="{{ url_for('render_influenza_project2') }}" >What are the statistics of the influenza virus?</a> </li>
-        <li> <a class="aLegend" href="{{ url_for('render_influenza_project3') }}">How to forecast the number of influenza infections?</a> </li>
+        <li> <a class="aContentTable" href="#">What is the project about?</a> </li>
+        <li> <a class="aContentTable" href="{{ url_for('render_influenza_project2') }}" >What are the statistics of the influenza virus?</a> </li>
+        <li> <a class="aContentTable" href="{{ url_for('render_influenza_project3') }}">How to forecast the number of influenza infections?</a> </li>
     </ol>
 </div>
 <p>
@@ -92,13 +92,26 @@
     the predictions of the models in the previously unseen period June 2012 until August 2013.
 </p>
 
-<div id="vis" align="center">
-    <select id="fpsDD"></select>
-    <svg id="svgId"></svg>
+<!--<div id="vis" align="center">-->
+    <!--<select id="fpsDD"></select>-->
+    <!--<svg id="svgId"></svg>-->
+    <!--<button id="play-button">-->
+        <!--Play-->
+    <!--</button>-->
+<!--</div>-->
+
+<div id="vis">
     <button id="play-button">
         Play
     </button>
+    <select id="fpsDD"></select>
 </div>
+<div class="svg-container">
+	<svg viewBox="0 0 1000 550" preserveAspectRatio="xMinYMin meet" class="svg-content">
+    <svg id="svgId"></svg>
+	</svg>
+</div>
+
 
 <p>
     <p class="pSmallHeading">
@@ -141,7 +154,7 @@
     some insights into typical influenza wave behavior.
 </p>
 
-<div align="center" class="pagination">
+<div class="pagination1">
   <a href="#">&laquo;</a>
   <a class="active" href="#">1</a>
     <a href="{{ url_for('render_influenza_project2') }}">2</a>

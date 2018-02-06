@@ -10,11 +10,11 @@
 
 {% block page_content %}
 <h1>Influenza Project</h1>
-<div class="divLegend">
+<div class="divContentTable">
     <ol>
-        <li class="notCurrentLiLegend"> <a class="aLegend" href="{{ url_for('render_influenza_project1') }}">What is the project about?</a> </li>
-        <li class="notCurrentLiLegend"> <a class="aLegend" href="{{ url_for('render_influenza_project2') }}">What are the statistics of the influenza virus?</a> </li>
-        <li> <a class="aLegend" href="#">How to forecast the number of influenza infections?</a> </li>
+        <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project1') }}">What is the project about?</a> </li>
+        <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project2') }}">What are the statistics of the influenza virus?</a> </li>
+        <li> <a class="aContentTable" href="#">How to forecast the number of influenza infections?</a> </li>
     </ol>
 </div>
 <div class="wrapperSelectFigure">
@@ -29,14 +29,14 @@
         <!--The <a href="ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/historical/">Deutscher Wetterdienst</a> provides weather data for Germany on a daily basis. For instance mean, min, max of temperatur, relative humidity and precipitation.-->
         <!--<a href="https://www.google.org/flutrends/about/">Google Flu Trends</a> provides numbers reflecting the frequency of influenza related search queries on a state level per week.-->
     <!--</p>-->
-    <div class="multiselectStates">
+    <div>
         <select class="selectDropDown" id="featuresSingleSelect">
             {% for item in stateSequence -%}
             <option value={{ item }}>{{ item }}</option>
             {%- endfor %}
         </select>
     </div>
-    <div class="figureWithMultiselect">
+    <div id="featureFigureDiv">
         <div id="placeForFeaturesFigure">
             {{ script_features|safe }}
             {{ div_features|safe }}
@@ -44,7 +44,7 @@
     </div>
 </div>
 
-<div align="center" class="pagination">
+<div class="pagination1">
   <a href="{{ url_for('render_influenza_project2') }}">&laquo;</a>
   <a href="{{ url_for('render_influenza_project1') }}">1</a>
     <a href="{{ url_for('render_influenza_project2') }}">2</a>

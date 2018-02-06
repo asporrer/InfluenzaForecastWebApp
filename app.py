@@ -21,11 +21,17 @@ from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
-# Getting the path to datadf.pkl.
+# Paths
 currDir = os.path.dirname(__file__)
 data_dir = os.path.join(currDir, "static")
 data_dir = os.path.join(data_dir, "data")
 data_location = os.path.join(data_dir, 'datadf.pkl')
+data_plots_location = os.path.join(data_dir, "plots")
+
+vanilla_script_div_path = os.path.join(data_plots_location, "vanilla_script_div.pkl")
+overall_cases_script_div_path = os.path.join(data_plots_location, "overall_cases_script_div.pkl")
+wave_stats_script_div_path = os.path.join(data_plots_location, "wave_stats_script_div.pkl")
+wave_start_vs_intensity_script_div_path = os.path.join(data_plots_location, "wave_start_vs_intensity_script_div.pkl")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'd90Fj238A679bn940sn4Ghrq9b08a962Nvfm2390'
@@ -60,20 +66,21 @@ def render_influenza_project1():
 
 @app.route('/InfluenzaProject2', methods=['GET'])
 def render_influenza_project2():
-    # Generate plots
-    p_vanilla_influenza = visualize_state_commonalities(data_df)
-    p_overall_reported_cases = visualize_overall_reported_cases(data_df)
-    p_wave_stats = visualize_wave_stats_distributions(data_df)
-    p_start_vs_severity = visualize_wave_start_vs_severity_via_box(data_df)
-    p_start_vs_length = visualize_wave_start_vs_length_via_box(data_df)
 
-
-    # Embed plots into HTML via Flask Render
-    script_vanilla, div_vanilla = components(p_vanilla_influenza)
-    script_overall_cases, div_overall_cases = components(p_overall_reported_cases)
-    script_wave_stats, div_wave_stats = components(p_wave_stats)
-    script_wave_start_vs_intensity, div_wave_start_vs_intensity = components(row(p_start_vs_severity, p_start_vs_length))
     state_list = data_df['state'].unique().tolist()
+
+    # Loading pregenerated plots to speed up loading of the page.
+    with open(vanilla_script_div_path, 'rb') as file:
+        script_vanilla, div_vanilla = pickle.load(file)
+
+    with open(overall_cases_script_div_path, 'rb') as file:
+        script_overall_cases, div_overall_cases = pickle.load(file)
+
+    with open(wave_stats_script_div_path, 'rb') as file:
+        script_wave_stats, div_wave_stats = pickle.load(file)
+
+    with open(wave_start_vs_intensity_script_div_path, 'rb') as file:
+        script_wave_start_vs_intensity, div_wave_start_vs_intensity = pickle.load(file)
 
     return render_template('InfluenzaProject2.html', script_vanilla=script_vanilla, div_vanilla=div_vanilla,
                            script_overall_cases=script_overall_cases, div_overall_cases=div_overall_cases,
@@ -153,6 +160,41 @@ def features_figure():
 # Visualization methods
 #######################
 
+def generate_new_plots():
+    """
+    This function generates new versions of the bokeh plots
+    transforms them into an embeddable version and than stores them
+    to decrease the loading time of the site.
+
+    :return: None
+    """
+    # Generate figures
+    p_vanilla_influenza = visualize_state_commonalities(data_df)
+    p_overall_reported_cases = visualize_overall_reported_cases(data_df)
+    p_wave_stats = visualize_wave_stats_distributions(data_df)
+    p_start_vs_severity = visualize_wave_start_vs_severity_via_box(data_df)
+    p_start_vs_length = visualize_wave_start_vs_length_via_box(data_df)
+
+    # Embeddable version of figures for flask
+    script_vanilla, div_vanilla = components(p_vanilla_influenza)
+    script_overall_cases, div_overall_cases = components(p_overall_reported_cases)
+    script_wave_stats, div_wave_stats = components(p_wave_stats)
+    script_wave_start_vs_intensity, div_wave_start_vs_intensity = components(row(p_start_vs_severity, p_start_vs_length))
+
+    # Storing new plots
+    with open(vanilla_script_div_path, 'wb') as file:
+        pickle.dump((script_vanilla, div_vanilla), file)
+
+    with open(overall_cases_script_div_path, 'wb') as file:
+        pickle.dump((script_overall_cases, div_overall_cases), file)
+
+    with open(wave_stats_script_div_path, 'wb') as file:
+        pickle.dump((script_wave_stats, div_wave_stats), file)
+
+    with open(wave_start_vs_intensity_script_div_path, 'wb') as file:
+        pickle.dump((script_wave_start_vs_intensity, div_wave_start_vs_intensity), file)
+
+
 def visualize_state_commonalities(data_df):
     """
     This function returns a bokeh visualization of the influenza waves in the states of Germany from 2005 till 2015.
@@ -192,6 +234,7 @@ def plot_results(title_param, x_axis_title_param, y_axis_title_param, dates_list
 
     p = figure(plot_width=800, plot_height=500, title=title_param, x_axis_label=x_axis_title_param,
                y_axis_label=y_axis_title_param, toolbar_location="right")
+
 
     # In case a dates list is provided as parameter:
     # This list is formatted and then used in the plot.
