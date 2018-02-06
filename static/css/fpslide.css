@@ -146,6 +146,7 @@ body {
 
 .scrollableFigureDiv {
     overflow: auto;
+    height: 530px;
 }
 
 #featureFigureDiv {
