@@ -2,30 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c31a1a99-6de3-4ef7-8266-d5eec4d067a1" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/static/data/plots/metrics/confMatPlotTh1.pkl" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/static/data/plots/metrics/confMatPlotTh2.pkl" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/static/data/plots/metrics/metric_AUC_script_div.pkl" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/static/data/plots/metrics/metric_Accuracy_script_div.pkl" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/static/data/plots/metrics/metric_F2Score_script_div.pkl" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/static/data/plots/metrics/metric_LogLoss_script_div.pkl" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/static/data/plots/metrics/metric_Precision_script_div.pkl" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/static/data/plots/metrics/metric_Recall_script_div.pkl" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/app.py" afterPath="$PROJECT_DIR$/app.py" />
       <change beforePath="$PROJECT_DIR$/static/css/fpslide.css" afterPath="$PROJECT_DIR$/static/css/fpslide.css" />
-      <change beforePath="$PROJECT_DIR$/static/data/v1/currentDates.csv" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/static/data/v1/futureDates.csv" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/static/data/v1/influenzaBayern.csv" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/static/data/v1/prediction1Bayern.csv" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/static/data/v1/prediction2Bayern.csv" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/static/data/v1/wholeDateLine.csv" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/static/js/ajaxscripts.js" afterPath="$PROJECT_DIR$/static/js/ajaxscripts.js" />
-      <change beforePath="$PROJECT_DIR$/static/js/fpslide.js" afterPath="$PROJECT_DIR$/static/js/fpslide.js" />
-      <change beforePath="$PROJECT_DIR$/templates/InfluenzaProject1.html" afterPath="$PROJECT_DIR$/templates/InfluenzaProject1.html" />
-      <change beforePath="$PROJECT_DIR$/templates/InfluenzaProject2.html" afterPath="$PROJECT_DIR$/templates/InfluenzaProject2.html" />
-      <change beforePath="$PROJECT_DIR$/templates/InfluenzaProject3.html" afterPath="$PROJECT_DIR$/templates/InfluenzaProject3.html" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html" afterPath="$PROJECT_DIR$/templates/base.html" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" afterPath="$PROJECT_DIR$/templates/index.html" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -36,7 +15,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/HomepageV1$hello.coverage" NAME="hello Coverage Results" MODIFIED="1517352817972" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/HomepageV1$app.coverage" NAME="app Coverage Results" MODIFIED="1518474060451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/HomepageV1$app.coverage" NAME="app Coverage Results" MODIFIED="1518476337060" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -52,12 +31,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="InfluenzaProject3.html" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/templates/InfluenzaProject3.html">
+      <file leaf-file-name="fpslide.css" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/static/css/fpslide.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3381">
-              <caret line="161" column="23" lean-forward="true" selection-start-line="161" selection-start-column="23" selection-end-line="161" selection-end-column="23" />
+            <state relative-caret-position="366">
+              <caret line="93" column="23" lean-forward="false" selection-start-line="93" selection-start-column="23" selection-end-line="93" selection-end-column="23" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="app.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1533">
+              <caret line="88" column="49" lean-forward="true" selection-start-line="88" selection-start-column="49" selection-end-line="88" selection-end-column="49" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -122,15 +113,15 @@
         <option value="$PROJECT_DIR$/templates/about.html" />
         <option value="$PROJECT_DIR$/static/js/fpslide.js" />
         <option value="$PROJECT_DIR$/templates/base.html" />
-        <option value="$PROJECT_DIR$/app.py" />
         <option value="$PROJECT_DIR$/static/css/pageFormatting.css" />
         <option value="$PROJECT_DIR$/templates/InfluenzaProject1.html" />
-        <option value="$PROJECT_DIR$/static/css/fpslide.css" />
         <option value="$PROJECT_DIR$/templates/InfluenzaProject2.html" />
         <option value="$PROJECT_DIR$/static/css/pageFormattingInfluenza.css" />
         <option value="$PROJECT_DIR$/templates/contact.html" />
         <option value="$PROJECT_DIR$/static/css/pageFormattingContact.css" />
         <option value="$PROJECT_DIR$/templates/InfluenzaProject3.html" />
+        <option value="$PROJECT_DIR$/app.py" />
+        <option value="$PROJECT_DIR$/static/css/fpslide.css" />
       </list>
     </option>
   </component>
@@ -173,6 +164,18 @@
               <item name="HomepageV1" type="b2602c69:ProjectViewProjectNode" />
               <item name="HomepageV1" type="462c0819:PsiDirectoryNode" />
               <item name="static" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="HomepageV1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="HomepageV1" type="462c0819:PsiDirectoryNode" />
+              <item name="static" type="462c0819:PsiDirectoryNode" />
+              <item name="css" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="HomepageV1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="HomepageV1" type="462c0819:PsiDirectoryNode" />
+              <item name="static" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="HomepageV1" type="b2602c69:ProjectViewProjectNode" />
@@ -295,11 +298,10 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293979" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28453365" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28453365" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293979" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293979" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -601,16 +603,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="63" column="0" lean-forward="true" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/InfluenzaProject2.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="357">
@@ -654,18 +646,28 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/static/css/fpslide.css">
+    <entry file="file://$PROJECT_DIR$/templates/InfluenzaProject3.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="298">
-          <caret line="156" column="0" lean-forward="true" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
+        <state relative-caret-position="2184">
+          <caret line="161" column="23" lean-forward="true" selection-start-line="161" selection-start-column="23" selection-end-line="161" selection-end-column="23" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/InfluenzaProject3.html">
+    <entry file="file://$PROJECT_DIR$/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3381">
-          <caret line="161" column="23" lean-forward="true" selection-start-line="161" selection-start-column="23" selection-end-line="161" selection-end-column="23" />
+        <state relative-caret-position="1533">
+          <caret line="88" column="49" lean-forward="true" selection-start-line="88" selection-start-column="49" selection-end-line="88" selection-end-column="49" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/css/fpslide.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="366">
+          <caret line="93" column="23" lean-forward="false" selection-start-line="93" selection-start-column="23" selection-end-line="93" selection-end-column="23" />
           <folding />
         </state>
       </provider>
