@@ -1,34 +1,62 @@
 {% extends "base.html" %}
 
-{% block title %}Influenza Project{% endblock %}
+{% block title %}Influenza Forecasting{% endblock %}
 
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.css" type="text/css" />
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fpslide.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pageFormattingInfluenza.css') }}">
 {% endblock %}
 
 {% block page_content %}
-<h1>Influenza Project</h1>
+<h1>Influenza Forecasting</h1>
 <div class="divContentTable">
     <ol>
-        <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project1') }}">What is the project about?</a> </li>
-        <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project2') }}">What are the statistics of the influenza virus?</a> </li>
-        <li> <a class="aContentTable" href="#">How to forecast the number of influenza infections?</a> </li>
+        <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project1') }}">Overview</a> </li>
+        <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project2') }}">Influenza Wave Statistics</a> </li>
+        <li> <a class="aContentTable" href="#">Forecasting as a Classification Problem</a> </li>
     </ol>
 </div>
+
+<p>
+    <p class="pSmallHeading">
+        How is the forecasting problem framed as a machine learning problem?
+    </p>
+    The problem can be framed at least in two ways. Either a regression problem that is to say the exact number of
+    influenza infections is predicted x weeks in advance. On the other hand the problem can be framed as a
+    classification problem in which the prediction is whether a certain threshold is crossed in the week x. It turns out
+    that classifying whether a certain threshold of reported influenza infections was crossed can be performed more
+    reliably. Although it would be nice to predict the exact number of infections the classification on the one hand
+    provides sufficient information to predict the start end and intensity which is crucial. And more importantly it
+    turned out that only framing the problem as a classification problem made it accessible for longer forecasting periods.
+    Which is crucial for having enough time to prepare for an influenza wave.
+    <br>
+    <br>
+    After gaining this insight two thresholds were chosen, namely 0.8 and 7.0 reported cases of influenza per 100 000
+    inhabitants. The threshold 0.8 was chosen since it is relatively likely that an influenza wave starts once this
+    threshold is crossed. On the other hand once the threshold of 7.0 is crossed the wave is relatively severe.
+    <br>
+    <br>
+    Actually it would be more accurate to refer the forecast as a set of classification problem. Since not one
+    classification model is trained to make predictions 1,2, ..., 11 weeks in advance but for each of the eleven
+    forecasting periods two models are trained. One for the threshold 0.8 and one for the threshold 7.0. Therefore in
+    sum 22 models are trained.
+    <br>
+</p>
+
+<p>
+    <p> What are the features? </p>
+    As mentioned on the first page the model features are the weekly number of <a href="https://survstat.rki.de/Content/Query/Create.aspx">reported influenza infections</a>
+    and <a href="https://www.google.org/flutrends/about/">Google Flu Trends data</a> about the frequency of influenza related
+    search queries on a state level and for Germany as a whole normalized by the number of inhabitants. It turns out that
+    including <a href="ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/historical/">weather features</a>
+    like temperature, humidity and precipitation did not improve the predictive power of the model. Which is interesting
+    when compared to the visual impression of the following plot. A first guess form looking at the plot could be that
+    the temperature has significant predictive power with respect to the reported influenza cases. To <b>hide/unhide</b> particular feature
+    just <b>click on the state</b> in the legend.
+</p>
 <div class="wrapperSelectFigure">
-    <!--<p>-->
-        <!--<p>-->
-            <!--The interested reader is refered to the code on link.-->
-        <!--</p>-->
-        <!--<p>-->
-            <!--What is the predictive power of the data?-->
-        <!--</p>-->
-        <!--The <a href="https://survstat.rki.de/Content/Query/Create.aspx">Robert Koch Institute</a> provides the reported number of influenza cases in Germany on a state level per week. To detect an influenza infection a laboratory test has to be performed. Therefore only a fraction of people infected by and suffereing from influenza are detected. Despite this fact up to a factor the reported number of influenza cases should be a good proxy for the actual number of influenza cases.-->
-        <!--The <a href="ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/historical/">Deutscher Wetterdienst</a> provides weather data for Germany on a daily basis. For instance mean, min, max of temperatur, relative humidity and precipitation.-->
-        <!--<a href="https://www.google.org/flutrends/about/">Google Flu Trends</a> provides numbers reflecting the frequency of influenza related search queries on a state level per week.-->
-    <!--</p>-->
     <div>
         <select class="selectDropDown" id="featuresSingleSelect">
             {% for item in stateSequence -%}
@@ -36,13 +64,103 @@
             {%- endfor %}
         </select>
     </div>
-    <div id="featureFigureDiv">
+    <div id="featureFigureDiv" class="singleSelectAbove">
         <div id="placeForFeaturesFigure">
             {{ script_features|safe }}
             {{ div_features|safe }}
         </div>
     </div>
 </div>
+<p>
+    Since the weather features did not contribute to the forecast performance only the reported influenza infections and
+    the Google Flu trends data are used as model features in the following way.
+    <br>
+    <br>
+    The above data is available for the period from 2005 until 2015 and the features are constructed using a so called
+    rolling window. This means that for each state and each year and week of the year combination (e.g. state: Bayern,
+    year: 2012, week: 33) the influenza and google trends data of the past ten weeks for the specific state and for
+    Germany as a whole are used as features to predict 1,2, ... 11 weeks in advance for the specific state.
+
+    So, an example of a feature vector would be the following. If the current state is Bayern, the current year is 2012,
+    and the current week of the year is 33 then this would lead to the following feature vector with 40 dimensions. For the weeks 24, 25, ...
+    31, 32, 33 of the year 2012 the reported influenza numbers and the Google Flu Trends data for Bayern and for Germany
+    as a whole are included.
+    <br>
+    <br>
+</p>
+    <p>How were the model and the features selected?</p>
+    The first question that arose was whether it would be better to frame the problem as a regression or classification problem.
+    As mention previously although many different regressor and feature combination were checked none provided satisfying
+    predictions for forecasting periods longer than 2 weeks. As in the classification including weather features and features like
+    week of the year and state (one hot encoded) did not improve the model performance. Therefore the problem was framed
+    as a classification problem. After initial spot checking of different classifiers it became clear that the classification
+    approach yielded satisfying results as we will see in the next paragraph. The features were selected by backward
+    elimination. The resulting features were stated in the previous paragraph. The best performing model was a fully
+    connected neural net.
+</p>
+
+<p>
+    <p>How did the model perform?</p>
+    First, it should be briefly mentioned that this classification problem is imbalanced. As the above feature plot confirms
+    the percentage of weeks crossing the threshold of 0.8 respectively 7.0 infections per 100 000 inhabitants is approximately
+    17% respectively 4%. To counter the imbalance the training set was enlarged by copying the rare classes such that  a ratio
+    of approximately 1:1 is achieved. Therefore enough weight is on the rare class when the influence of a false prediction
+    on the overall loss is calculated during training. Still the following metric visualizations will show that the large
+    imbalance in case of the classification associated with the threshold 7.0 seems to lead to significantly poorer predictions.
+    <br>
+    <br>
+    The following plot visualizes the results of the cross-validation with respect to different metrics. Each fold of the
+    cross-validation is associated with one year. For instance to predict the reported influenza infections for 2005 or more
+    precisely the cold weather season 2005/2006 the model is trained on the interval from week 25 of 2006 until week 24 of
+    2015 (excluding 2009). After comparing the results training one model for all sixteen states was favoured over training
+    models only on specific states or groups. The main reason for this circumstance might be the relatively small number of
+    samples. The following figure shows the performance of the model as seen in the animation on the first page with respect
+    to different metrics. The metrics can simply be selected via the select drop down menu. For each forecasting distance
+    from one to fifteen weeks the bars show the metric score of all cross-validation folds  on the validation sets. The x
+    shows the metric score on the validation set of a specific year.
+
+</p>
+
+<div class="wrapperSelectFigure">
+    <div>
+        <select class="selectDropDown" id="metricSingleSelect">
+            {% for item in metricSequence -%}
+            <option value={{ item }}>{{ item }}</option>
+            {%- endfor %}
+        </select>
+    </div>
+    <div id="metricFigureDiv" class="singleSelectAbove">
+        <div id="placeForMetricFigure">
+            {{ script_metric|safe }}
+            {{ div_metric|safe }}
+        </div>
+    </div>
+</div>
+
+<p>
+    Almost irrespective of the metric the above plot shows a relatively sharp performance decrease in the first
+    four weeks. As already mentioned this effect is stronger for the more imbalanced classification problem associated with
+    the threshold 7.0. Ater the four weeks the performance decrease slows down. The following visualizations of the
+    confusion matrices with respect to the threshold 0.8 show that the longer the forecasting period the
+    more false positives are predicted and less false negatives are performed. In absolute terms the false positive predictions
+    outweigh the false negative predictions. This improves the recall and worsens the precision.
+</p>
+<div id="confMatThr1FigureDiv" class="metricsFigureDiv">
+            {{ script_conf_mat_thr1|safe }}
+            {{ div_conf_mat_thr1|safe }}
+</div>
+The figure below shows the confusion matrices associated with the threshold 7.0. As above the trend is
+the longer the forecasting distance the more false positives.
+
+<div id="confMatThr2FigureDiv" class="metricsFigureDiv">
+            {{ script_conf_mat_thr2|safe }}
+            {{ div_conf_mat_thr2|safe }}
+</div>
+
+Main points of this page.
+Interested reader is referred to the code on the github repository. There are also some interesting approach to tackle
+the regression problem.
+
 
 <div class="pagination1">
   <a href="{{ url_for('render_influenza_project2') }}">&laquo;</a>

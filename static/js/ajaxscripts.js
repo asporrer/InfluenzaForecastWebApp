@@ -45,3 +45,19 @@ $("#featuresSingleSelect").change(function(){
       }
     });
 });
+
+$("#metricSingleSelect").change(function(){
+    var text = $("#metricSingleSelect").val();
+
+    $.ajax({
+      url: "/metricFigure",
+      type: "get",
+      data: {jsdata: text},
+      success: function(response) {
+        $("#placeForMetricFigure").html(response);
+      },
+      error: function(xhr) {
+        //Do Something to handle error
+      }
+    });
+});

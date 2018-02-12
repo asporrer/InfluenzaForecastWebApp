@@ -11,11 +11,16 @@ from sklearn.neighbors import KernelDensity
 
 # Plotting
 from bokeh.plotting import figure
-from bokeh.models import Range1d, LinearAxis, DatetimeTickFormatter, ColumnDataSource, LinearColorMapper, HoverTool
+from bokeh.models import Range1d, LinearAxis, DatetimeTickFormatter, ColumnDataSource, LinearColorMapper, \
+    LogColorMapper, LabelSet, HoverTool
 from bokeh.palettes import Category20b
 from bokeh.transform import linear_cmap
 from bokeh.layouts import column, row
 from bokeh.embed import components
+from sklearn.metrics import accuracy_score, precision_score, recall_score, fbeta_score, log_loss,\
+    roc_auc_score, confusion_matrix
+
+
 
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
@@ -26,12 +31,26 @@ currDir = os.path.dirname(__file__)
 data_dir = os.path.join(currDir, "static")
 data_dir = os.path.join(data_dir, "data")
 data_location = os.path.join(data_dir, 'datadf.pkl')
+data_for_metric_location = os.path.join(data_dir, 'influenzaDataForMetric.pkl')
 data_plots_location = os.path.join(data_dir, "plots")
 
+# Page 2 plots
 vanilla_script_div_path = os.path.join(data_plots_location, "vanilla_script_div.pkl")
 overall_cases_script_div_path = os.path.join(data_plots_location, "overall_cases_script_div.pkl")
 wave_stats_script_div_path = os.path.join(data_plots_location, "wave_stats_script_div.pkl")
 wave_start_vs_intensity_script_div_path = os.path.join(data_plots_location, "wave_start_vs_intensity_script_div.pkl")
+
+# Page 3 plots
+features_script_div_path = os.path.join(data_plots_location, "features_script_div.pkl")
+data_plots_metric_location = os.path.join(data_plots_location, "metrics")
+metrics_auc_script_div_path = os.path.join(data_plots_metric_location, "metric_AUC_script_div.pkl")
+metrics_accuracy_script_div_path = os.path.join(data_plots_metric_location, "metric_Accuracy_script_div.pkl")
+metrics_f2score_script_div_path = os.path.join(data_plots_metric_location, "metric_F2Score_script_div.pkl")
+metrics_logloss_script_div_path = os.path.join(data_plots_metric_location, "metric_LogLoss_script_div.pkl")
+metrics_precision_script_div_path = os.path.join(data_plots_metric_location, "metric_Precision_script_div.pkl")
+metrics_recall_script_div_path = os.path.join(data_plots_metric_location, "metric_Recall_script_div.pkl")
+conf_mat_thr1_script_div_path = os.path.join(data_plots_metric_location, "confMatPlotTh1.pkl")
+conf_mat_thr2_script_div_path = os.path.join(data_plots_metric_location, "confMatPlotTh2.pkl")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'd90Fj238A679bn940sn4Ghrq9b08a962Nvfm2390'
@@ -43,6 +62,9 @@ moment = Moment(app)
 with open(data_location, 'rb') as file:
     data_df = pickle.load(file)
 
+metric_name_list = ['Accuracy', 'Precision', 'Recall', 'F2_Score', 'ROC_AUC', 'Log_Loss']
+metric_path_list = [metrics_accuracy_script_div_path, metrics_precision_script_div_path, metrics_recall_script_div_path,
+                    metrics_f2score_script_div_path, metrics_auc_script_div_path, metrics_logloss_script_div_path]
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -56,7 +78,7 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    return render_template('InfluenzaProject1.html')
 
 
 @app.route('/InfluenzaProject1', methods=['GET'])
@@ -92,17 +114,38 @@ def render_influenza_project2():
 
 @app.route('/InfluenzaProject3', methods=['GET'])
 def render_influenza_project3():
-    # Generate plots
-    p_wave_features = visualize_data_per_state(data_df)
 
-    # Embed plots into HTML via Flask Render
-    script_features, div_features = components(p_wave_features)
+    # Loading pregenerated plots to speed up loading of the page.
+    with open(features_script_div_path, 'rb') as file:
+        script_features, div_features = pickle.load(file)
+
+    with open(metrics_auc_script_div_path, 'rb') as file:
+        script_metric, div_metric = pickle.load(file)
+
+    with open(conf_mat_thr1_script_div_path, 'rb') as file:
+        script_conf_mat_thr1, div_conf_mat_thr1 = pickle.load(file)
+
+    with open(conf_mat_thr2_script_div_path, 'rb') as file:
+        script_conf_mat_thr2, div_conf_mat_thr2 = pickle.load(file)
+
     state_list = data_df['state'].unique().tolist()
 
     return render_template('InfluenzaProject3.html',
                            script_features=script_features,
                            div_features=div_features,
-                           stateSequence=state_list)
+                           script_metric=script_metric,
+                           div_metric=div_metric,
+                           script_conf_mat_thr1=script_conf_mat_thr1,
+                           div_conf_mat_thr1=div_conf_mat_thr1,
+                           script_conf_mat_thr2=script_conf_mat_thr2,
+                           div_conf_mat_thr2=div_conf_mat_thr2,
+                           stateSequence=state_list,
+                           metricSequence=metric_name_list)
+
+
+@app.route('/Contact', methods=['GET'])
+def render_contact():
+    return render_template('contact.html')
 
 
 @app.route('/waveStatisticsFigure')
@@ -156,6 +199,25 @@ def features_figure():
     return render_template('multiselectUpdatedFigure.html', script=script, div=div)
 
 
+@app.route('/metricFigure')
+def metrics_figure():
+    """
+    This function is called via an ajax. The code is located in ajaxscripts.js.
+
+    :return: A str, containing the respective html and javascript code.
+    """
+
+    state_str = request.args['jsdata']
+
+    for index_metric, name_metric in enumerate(metric_name_list):
+        if state_str == name_metric:
+            # Loading pregenerated plots to speed up loading of the page.
+            with open(metric_path_list[index_metric], 'rb') as file:
+                script, div = pickle.load(file)
+
+    return render_template('multiselectUpdatedFigure.html', script=script, div=div)
+
+
 #######################
 # Visualization methods
 #######################
@@ -168,18 +230,21 @@ def generate_new_plots():
 
     :return: None
     """
+
     # Generate figures
     p_vanilla_influenza = visualize_state_commonalities(data_df)
     p_overall_reported_cases = visualize_overall_reported_cases(data_df)
     p_wave_stats = visualize_wave_stats_distributions(data_df)
     p_start_vs_severity = visualize_wave_start_vs_severity_via_box(data_df)
     p_start_vs_length = visualize_wave_start_vs_length_via_box(data_df)
+    p_wave_features = visualize_data_per_state(data_df)
 
     # Embeddable version of figures for flask
     script_vanilla, div_vanilla = components(p_vanilla_influenza)
     script_overall_cases, div_overall_cases = components(p_overall_reported_cases)
     script_wave_stats, div_wave_stats = components(p_wave_stats)
     script_wave_start_vs_intensity, div_wave_start_vs_intensity = components(row(p_start_vs_severity, p_start_vs_length))
+    script_features, div_features = components(p_wave_features)
 
     # Storing new plots
     with open(vanilla_script_div_path, 'wb') as file:
@@ -193,6 +258,9 @@ def generate_new_plots():
 
     with open(wave_start_vs_intensity_script_div_path, 'wb') as file:
         pickle.dump((script_wave_start_vs_intensity, div_wave_start_vs_intensity), file)
+
+    with open(features_script_div_path, 'wb') as file:
+        pickle.dump((script_features, div_features), file)
 
 
 def visualize_state_commonalities(data_df):
@@ -635,7 +703,7 @@ def visualize_data_per_state(input_df, state_str="Baden-Wuerttemberg"):
     p = figure(plot_width=800, plot_height=500, title=state_str, x_axis_label='Date')
 
     plot_x = [Week(year_week[0], year_week[1]).monday() for year_week in
-                  dates_list] # Old can be deleted: datetime.strptime(str(year_week[0]) + 'W' + str(year_week[1]) + ' MON', '%YW%U %a')
+                  dates_list]
 
     p.xaxis.formatter = DatetimeTickFormatter(
         years=["%D %B %Y"]
@@ -645,16 +713,16 @@ def visualize_data_per_state(input_df, state_str="Baden-Wuerttemberg"):
     p.xaxis[0].ticker.desired_num_ticks = 30
 
     # Influenza Numbers for Current State and for Germany as a Whole
-    p.yaxis.axis_label = '#Influenza Infections'
+    p.yaxis.axis_label = '# Influenza Infections'
     p.y_range = Range1d(start=0, end=max(max(influenza_list), max(influenza_germany_list))+3)
 
     # Google Trends Data
     p.extra_y_ranges['trends'] = Range1d(start=0, end=max(max(google_trends_list), max(google_trends_germany_list)))
-    p.add_layout(LinearAxis(y_range_name='trends', axis_label='Trends in'), 'left')
+    p.add_layout(LinearAxis(y_range_name='trends', axis_label='Google Trends Score'), 'left')
 
     # Temperature
     p.extra_y_ranges['temp'] = Range1d(start=min(temp_list)-1, end=max(temp_list)+2)
-    p.add_layout(LinearAxis(y_range_name='temp', axis_label='Temperature in Degree Celsius'), 'right')
+    p.add_layout(LinearAxis(y_range_name='temp', axis_label='Temperature in Degrees Celsius'), 'right')
 
     # # Precipitation
     # p.extra_y_ranges['prec'] = Range1d(start=0, end=500)
@@ -662,16 +730,18 @@ def visualize_data_per_state(input_df, state_str="Baden-Wuerttemberg"):
 
     keys_list = ['Influenza', 'Influenza Germany', 'Google Trends', 'Google Trends Germany', 'Temperature']
     argument_list = [influenza_list, influenza_germany_list, google_trends_list, google_trends_germany_list, temp_list]
-    color_list = ['black', 'blue', 'green', 'navy', 'red']
+    color_list = ['#000000', '#5b5b5b', '#1a6864', '#2a9e98', '#c11515']
     y_range_list = ['dummy', 'dummy', 'trends', 'trends', 'temp']
+    alpha_list = [1.0, 1.0, 1.0, 1.0, 0.0]
+    muted_alpha_list = [0.0, 0.0, 0.0, 0.0, 1.0]
 
     for index in range(0, 2):
-        p.step(plot_x, argument_list[index], legend=keys_list[index], color=color_list[index], alpha=1.0,
-               muted_color=color_list[index], muted_alpha=0.0)
+        p.step(plot_x, argument_list[index], legend=keys_list[index], color=color_list[index], alpha=alpha_list[index],
+               muted_color=color_list[index], muted_alpha=muted_alpha_list[index])
 
     for index in range(2, 5):
-        p.step(plot_x, argument_list[index], legend=keys_list[index], color=color_list[index], alpha=1.0,
-               muted_color=color_list[index], muted_alpha=0.0, y_range_name=y_range_list[index])
+        p.step(plot_x, argument_list[index], legend=keys_list[index], color=color_list[index], alpha=alpha_list[index],
+               muted_color=color_list[index], muted_alpha=muted_alpha_list[index], y_range_name=y_range_list[index])
 
     p.legend.location = "top_left"
     p.legend.click_policy = "mute"
@@ -679,7 +749,362 @@ def visualize_data_per_state(input_df, state_str="Baden-Wuerttemberg"):
 
     return p
 
+###
+# Start: Metric Figures
+###
+
+def visual_metrics():
+
+    # Getting the instance variables.
+    with open(data_for_metric_location, 'rb') as file:
+        week_threshold_years_list = pickle.load(file)
+
+    proba_threshold_list = [0.5, 0.4]
+
+    metric_list = [accuracy_score, precision_score, recall_score, lambda x, y: fbeta_score(x, y, 2.0), log_loss,
+                   roc_auc_score]
+    needs_binary_pred_bool_list = [True, True, True, True, False, False]
+    metric_needs_one_actual_bool_list = [False, False, True, True, True, True]
+    metric_name_list = ['Accuracy', 'Precision', 'Recall', 'F2 Score', 'Log Loss', 'AUC']
+    title_metric_plot_list = [metric + " per Test Year" for metric in metric_name_list]
+
+    threshold_list = [0.8, 7.0]
+    threshold_color_list = ["#036564", "#550b1d"]
+
+    metric_plot_list = []
+    metricPlotLists = [[], ([], [])]
+
+    for index in range(len(metric_list)):
+        metric_dict = get_metric_for_week_threshold(week_threshold_years_list, metric=metric_list[index],
+                                                    metric_needs_binary_predictions_bool=
+                                                    needs_binary_pred_bool_list[index],
+                                                    metric_needs_one_actual_bool=metric_needs_one_actual_bool_list[
+                                                        index],
+                                                    proba_threshold1=proba_threshold_list[0],
+                                                    proba_threshold2=proba_threshold_list[1])
+
+        if index == 0:
+
+            for index_threshold in range(2):
+                plot_list = []
+                for index_week in range(len(metric_dict['sorted_unique_week_list'])):
+                    plot_list.append(plot_confusion_matrix(
+                        metric_dict['all_true_values_ndarray_per_week_threshold_tuple'][index_threshold][index_week],
+                        metric_dict['all_predictions_ndarray_per_week_threshold_tuple'][index_threshold][index_week],
+                        title='Week ' + str(index_week), threshold_proba=proba_threshold_list[index_threshold]))
+                metricPlotLists[1][index_threshold].extend(plot_list)
+                time.sleep(2)
+
+        metric_plot_list.append(
+            visualize_scores(metric_dict['week_str_list'], metric_dict['metric_value_list'], metric_dict['year_list'],
+                             metric_dict['threshold_list'],
+                             metric_dict['overall_metric_per_week_and_threshold_tuple'][0],
+                             metric_dict['overall_metric_per_week_and_threshold_tuple'][1],
+                             metric_dict['sorted_unique_week_list'], threshold1=threshold_list[0],
+                             threshold2=threshold_list[1], title=title_metric_plot_list[index],
+                             y_axis_label=metric_name_list[index], metric_name=metric_name_list[index],
+                             color_threshold1=threshold_color_list[0],
+                             color_threshold2=threshold_color_list[1]))
+
+    metricPlotLists[0].extend(metric_plot_list)
+
+    with open(os.path.join(os.path.dirname(__file__), r'Data\Plots\metricPlotLists.pkl'), 'wb') as file:
+        pickle.dump(metricPlotLists, file)
+
+    with open(os.path.join(os.path.dirname(__file__), r'Data\Plots\metricPlotLists.pkl'), 'rb') as file:
+        metricPlotLists = pickle.load(file)
+
+    show(row(metricPlotLists[0]))
+    time.sleep(2)
+    show(row(metricPlotLists[1][0]))
+    time.sleep(2)
+    show(row(metricPlotLists[1][1]))
+    time.sleep(2)
+
+    return None
+
+def visualize_confusion_matrices():
+    return None
+
+def get_metric_for_week_threshold(week_threshold_years_list, metric=roc_auc_score, proba_threshold1=0.5, proba_threshold2=0.5,
+                                  metric_needs_one_actual_bool=True, metric_needs_binary_predictions_bool=True):
+    """
+    Possible metrics are: auc, log_loss, accuracy_score, precision, recall, f_score
+
+    :param metric:
+    :return:
+    """
+
+    week_list = []
+    threshold_list = []
+    year_list = []
+
+    actual_values_list = []
+    predictions_list = []
+
+    metric_value_list = []
+    has_ones_year_bool_list = []
+
+    threshold1 = 0.8
+    threshold2 = 7.0
+
+    for per_week_dict in week_threshold_years_list:
+        for per_threshold_dict in per_week_dict['output_by_threshold']:
+
+            if per_threshold_dict['threshold'] != threshold1 and per_threshold_dict['threshold'] != threshold2:
+                raise ValueError('A threshold of the loaded file has an unexpected value.')
+
+            current_year = 2005
+            for pred_proba_true_tuple in per_threshold_dict['output_per_year']:
+
+                if current_year != 2005:
+
+                    if pred_proba_true_tuple[1].sum() != 0:
+                        has_ones_year_bool_list.append(True)
+                    else:
+                        has_ones_year_bool_list.append(False)
+
+                    week_list.append(per_week_dict['week'])  # week'] + 1 depends on week_threshold_years_list format
+                    threshold_list.append(per_threshold_dict['threshold'])
+                    year_list.append(current_year)
+                    actual_values_list.append(pred_proba_true_tuple[1].flatten())
+                    predictions_list.append(pred_proba_true_tuple[0])
+
+                    current_correct_format_predictions_ndarray = pred_proba_true_tuple[0]
+
+                    if metric_needs_binary_predictions_bool:
+                        if per_threshold_dict['threshold'] == threshold1:
+                            current_proba_threshold = proba_threshold1
+                        else:
+                            current_proba_threshold = proba_threshold2
+
+                        current_correct_format_predictions_ndarray = \
+                            (current_proba_threshold <= current_correct_format_predictions_ndarray).astype(int)
+
+                    if pred_proba_true_tuple[1].sum() != 0 or not metric_needs_one_actual_bool:
+                        metric_value_list.append(
+                            metric(pred_proba_true_tuple[1], current_correct_format_predictions_ndarray))
+                    else:
+                        metric_value_list.append(None)
+
+                if current_year != 2008:
+                    current_year += 1
+                else:
+                    current_year += 2
+
+    # The unique list of weeks for the x_range of the figure.
+    sorted_unique_week_list = sorted(list(set(week_list)))
+    sorted_unique_week_list = ['Week ' + str(week) for week in sorted_unique_week_list]
+
+    # Concatenating the true and predicted values per threshold and week.
+
+    all_predictions_ndarray_per_week_threshold1 = get_true_and_predicted_values_per_week(predictions_list,
+                                                                                         threshold_list, week_list,
+                                                                                         sorted_unique_week_list,
+                                                                                         threshold1)
+    all_true_values_ndarray_per_week_threshold1 = get_true_and_predicted_values_per_week(actual_values_list,
+                                                                                         threshold_list, week_list,
+                                                                                         sorted_unique_week_list,
+                                                                                         threshold1)
+    all_predictions_ndarray_per_week_threshold2 = get_true_and_predicted_values_per_week(predictions_list,
+                                                                                         threshold_list,
+                                                                                         week_list,
+                                                                                         sorted_unique_week_list,
+                                                                                         threshold2)
+    all_true_values_ndarray_per_week_threshold2 = get_true_and_predicted_values_per_week(actual_values_list,
+                                                                                         threshold_list, week_list,
+                                                                                         sorted_unique_week_list,
+                                                                                         threshold2)
+
+    # Calculating the scores per threshold and week.
+    score_per_week_threhold1 = []
+    score_per_week_threhold2 = []
+
+    for index in range(len(sorted_unique_week_list)):
+        formatted_predictions1_ndarray = all_predictions_ndarray_per_week_threshold1[index]
+        formatted_predictions2_ndarray = all_predictions_ndarray_per_week_threshold2[index]
+        if metric_needs_binary_predictions_bool:
+            formatted_predictions1_ndarray = (proba_threshold1 <= formatted_predictions1_ndarray).astype(int)
+            formatted_predictions2_ndarray = (proba_threshold2 <= formatted_predictions2_ndarray).astype(int)
+        score_per_week_threhold1.append(metric(all_true_values_ndarray_per_week_threshold1[index],
+                                               formatted_predictions1_ndarray))
+        score_per_week_threhold2.append(metric(all_true_values_ndarray_per_week_threshold2[index],
+                                               formatted_predictions2_ndarray))
+
+    # The str week list for plotting the x_axis.
+    week_str_list = ['Week ' + str(week) for week in week_list]
+
+    if metric_needs_one_actual_bool:
+        # Plotting the different AUC values for each week, threshold and test year.
+        week_str_list = np.array(week_str_list)[has_ones_year_bool_list]
+        metric_value_list = np.array(metric_value_list)[has_ones_year_bool_list]
+        year_list = np.array(year_list)[has_ones_year_bool_list]
+        threshold_list = np.array(threshold_list)[has_ones_year_bool_list]
+
+    # Calculating the overall metric scores for the different years.
+    overall_metric_per_week_and_threshold1 = score_per_week_threhold1
+
+    # At the moment not used
+    # get_average_auc_per_week(auc_list, auc_threshold_list, auc_week_list,
+    # sorted_unique_week_list,
+    # 0.8)
+
+    overall_metric_per_week_and_threshold2 = score_per_week_threhold2
+
+    # At the moment not used
+    # get_average_auc_per_week(auc_list, auc_threshold_list, auc_week_list,
+    # sorted_unique_week_list,
+    # 7.0)
+
+    return {'week_str_list': week_str_list, 'metric_value_list': metric_value_list, 'year_list': year_list,
+            'threshold_list': threshold_list, 'overall_metric_per_week_and_threshold_tuple':
+                (overall_metric_per_week_and_threshold1, overall_metric_per_week_and_threshold2),
+            'sorted_unique_week_list': sorted_unique_week_list, 'all_true_values_ndarray_per_week_threshold_tuple':
+                (all_true_values_ndarray_per_week_threshold1, all_true_values_ndarray_per_week_threshold2),
+            'all_predictions_ndarray_per_week_threshold_tuple': (all_predictions_ndarray_per_week_threshold1,
+                                                                 all_predictions_ndarray_per_week_threshold2)}
+
+
+def get_true_and_predicted_values_per_week(value_list, threshold_list, week_list, sorted_unique_week_list, threshold):
+
+    value_ndarray_per_week_list = [None for _ in sorted_unique_week_list]
+
+    for index in range(len(threshold_list)):
+        if threshold_list[index] == threshold:
+            if value_ndarray_per_week_list[week_list[index]-1] is None:
+                value_ndarray_per_week_list[week_list[index]-1] = value_list[index]
+            else:
+                value_ndarray_per_week_list[week_list[index]-1] = np.hstack([value_ndarray_per_week_list[week_list[index]-1], value_list[index]])
+
+    return value_ndarray_per_week_list
+
+
+def visualize_scores(week_str_list, metric_value_list, year_list, threshold_list,
+                     overall_metric_per_week_and_threshold1, overall_metric_per_week_and_threshold2,
+                     sorted_unique_week_list, threshold1=0.8, threshold2=7.0, title='', y_axis_label='Metric Value',
+                     color_threshold1="#036564", color_threshold2="#550b1d", metric_name='Metric'):
+
+    TOOLS = "pan,wheel_zoom,box_zoom,reset,hover,save"
+
+    p = figure(title=title, x_range=sorted_unique_week_list, x_axis_label='Forecasting Distance',
+               y_axis_label=y_axis_label, tools=TOOLS)
+
+    # Plotting metric data per year for two thresholds.
+    index_bool_threshold1_ndarray = np.array(threshold_list) == threshold1
+    index_bool_threshold2_ndarray = np.logical_not(index_bool_threshold1_ndarray)
+
+    index_list = [index_bool_threshold1_ndarray, index_bool_threshold2_ndarray]
+    color_list = [color_threshold1, color_threshold2]
+    thresh_list = [threshold1, threshold2]
+
+    for index in range(2):
+        week_str_ndarray = np.array(week_str_list)[index_list[index]]
+
+        metric_value_ndarray = np.array(metric_value_list)[index_list[index]]
+
+        year_ndarray = np.array(year_list)[index_list[index]]
+
+        threshold_ndarray = np.array(threshold_list)[index_list[index]]
+
+        metric_data_dict = dict(x=week_str_ndarray, y=metric_value_ndarray, year=year_ndarray,
+                                threshold=threshold_ndarray)
+
+        metric_source = ColumnDataSource(data=metric_data_dict)
+
+        p.x(x='x', y='y', size=10, color=color_list[index], source=metric_source,
+            legend='Per Year ' + metric_name + ': Threshold ' + str(thresh_list[index]), muted_color=color_list[index],
+            muted_alpha=0.0)
+
+    # Plotting the Average over the AUC values for the different years.
+    average1_auc_source = ColumnDataSource(data=dict(x=sorted_unique_week_list, y=overall_metric_per_week_and_threshold1,
+                                                     year=['2005, ..., 2008, 2010, ... 2014'] * len(sorted_unique_week_list),
+                                                     threshold=['0.8'] * len(sorted_unique_week_list)))
+    average2_auc_source = ColumnDataSource(data=dict(x=sorted_unique_week_list, y=overall_metric_per_week_and_threshold2,
+                                                     year=['2005, ..., 2008, 2010, ... 2014'] * len(
+                                                         sorted_unique_week_list),
+                                                     threshold=['7.0'] * len(sorted_unique_week_list)))
+    p.rect(x='x', y='y', width=0.8, height=5, source=average1_auc_source, color=color_threshold1,
+           muted_color=color_threshold1, muted_alpha=0.0, legend=metric_name + ' Overall: Threshold ' + str(threshold1),
+           height_units="screen")
+    p.rect(x='x', y='y', width=0.8, height=5, source=average2_auc_source, color=color_threshold2,
+           muted_color=color_threshold2, muted_alpha=0.0, legend=metric_name + 'Overall: Threshold ' + str(threshold2),
+           height_units="screen")
+
+    # Some formatting and interaction
+    p.xaxis.major_label_orientation = 3.0 / 4
+    p.legend.location = "bottom_left"
+    p.legend.background_fill_alpha = 0.0
+    p.legend.click_policy = "mute"
+
+    hover = p.select_one(HoverTool)
+    hover.point_policy = "follow_mouse"
+    hover.tooltips = [("Year(s)", "@year")]
+
+    return p
+
+
+def plot_confusion_matrix(actual_classes_ndarray, predicted_probabilities_ndarray, threshold_proba=0.05, title=''):
+
+    true_values_ndarray_per_week = actual_classes_ndarray
+    predicted_values_ndarray_per_week = (threshold_proba <= predicted_probabilities_ndarray).astype(int)
+
+    cur_confusion_matrix = confusion_matrix(true_values_ndarray_per_week, predicted_values_ndarray_per_week)
+
+    true_negatives = cur_confusion_matrix[0, 0]
+    false_positives = cur_confusion_matrix[0, 1]
+    false_negatives = cur_confusion_matrix[1, 0]
+    true_positives = cur_confusion_matrix[1, 1]
+
+    # Categories for the x and y-axis.
+    labels_prediction = ('Pred. Class 0', 'Pred. Class 1')
+    labels_truth = ('Class 0', 'Class 1')
+
+    start_length_count_df = pd.DataFrame(
+        [[labels_prediction[0], labels_truth[0], true_negatives], [labels_prediction[1], labels_truth[0], false_positives],
+         [labels_prediction[0], labels_truth[1], false_negatives],
+         [labels_prediction[1], labels_truth[1], true_positives]], columns=['predicted_class', 'true_class', 'count'])
+
+    # Coloring
+    colors = ["#dfccce", "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
+
+    mapper = LogColorMapper(palette=colors, low=0, high=7000)
+
+    source = ColumnDataSource(start_length_count_df)
+
+    p = figure(title=title, x_range=labels_prediction, y_range=list(labels_truth)[::-1],
+               plot_width=200, plot_height=200,
+               x_axis_location="above")
+
+    p.grid.grid_line_color = None
+    p.axis.axis_line_color = None
+    p.axis.major_tick_line_color = None
+    p.axis.major_label_text_font_size = "7pt"
+    p.axis.major_label_standoff = 0
+
+    p.rect(x='predicted_class', y='true_class', width=1, height=1,
+           source=source,
+           fill_color={'field': 'count', 'transform': mapper},
+           line_color=None)
+
+    p.toolbar.logo = None
+    p.toolbar_location = None
+
+    labels = LabelSet(x='predicted_class', y='true_class', text='count', level='glyph',
+                      x_offset=0, y_offset=0, source=source, render_mode='canvas', text_align="center",
+                      text_baseline="middle", text_color="black")
+
+    p.add_layout(labels)
+
+    # q.yaxis.major_label_orientation = math.pi / 4
+
+    return p
+
+
+###
+# End: Metric Figures
+###
+
 
 if __name__ == "__main__":
-     # app.run(debug=True)
-    app.run(port=33507)
+     app.run(debug=True)
+    # app.run(port=33507)

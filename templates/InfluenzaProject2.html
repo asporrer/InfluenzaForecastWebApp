@@ -1,48 +1,47 @@
 {% extends "base.html" %}
 
-{% block title %}Influenza Project{% endblock %}
+{% block title %}Influenza Forecasting{% endblock %}
 
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.css" type="text/css" />
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fpslide.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pageFormattingInfluenza.css') }}">
 {% endblock %}
 
 {% block page_content %}
-<h1>Influenza Project</h1>
+<h1>Influenza Forecasting</h1>
 <div class="divContentTable">
     <ol>
-        <li class="notCurrentLiContentTable"><a class="aContentTable" href="{{ url_for('render_influenza_project1') }}">What is the project about?</a></li>
-        <li> <a class="aContentTable" href="#">What are the statistics of the influenza virus?</a> </li>
-        <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project3') }}">How to forecast the number of influenza infections?</a> </li>
+        <li class="notCurrentLiContentTable"><a class="aContentTable" href="{{ url_for('render_influenza_project1') }}">Overview</a></li>
+        <li> <a class="aContentTable" href="#">Influenza Wave Statistics</a> </li>
+        <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project3') }}">Forecasting as a Classification Problem</a> </li>
     </ol>
 </div>
 <p>
     As mentioned on the previous page we now focus on the statistics of the number of reported influenza infections on a state level.
-
-    The next page then will go into more detail about classification model and in general the machine learning aspect of the project.
 </p>
 <p>
-    First let's visualize the normalized reported influenza cases in the sixteen states of Germany.
+    First let's visualize the reported influenza cases per 100 000 inhabitants in the sixteen states of Germany.
     The plot is at first sight a bit messy. To <b>hide/unhide</b> particular states just <b>click on the state</b> in the legend. This will make the plot clearer.
-    But this messy plot conveys at least two important messages. First we can see that influenza occurs in waves. Approximately one wave per winter. The waves can rise and fall sharply.
-    Second the progressions of the waves in different states seem to coincide roughly. Thus a rising number of reported number
-    of influenza infections in one state is an indicator of the rise of reported influenza infections in other states with a low number of reported infections.
+    But this plot although a bit messy at first glance conveys at least two important messages. First, we can see that influenza occurs in waves. Approximately one wave per winter. The waves can rise and fall sharply.
+    Second, the progressions of the waves in different states seem to coincide roughly. Thus a rising number of reported influenza infections in one state is an indicator of the rise of reported influenza infections in other states with currently low infection numbers.
 </p>
 <div id="vanillaDiv" class="scrollableFigureDiv" align="center">
 {{ script_vanilla|safe }}
 {{ div_vanilla|safe }}
 </div>
+
 <p>
-    <br>
     The next plot simply shows the state wise summed number of reported influenza infections where the outlier year 2009
-    where the swine flu occured is excluded. There are significant
+    where the swine flu occured is excluded. The plot shows significant
     differences between states. Sachsen-Anhalt has roughly eight times as many infections from 2005 till 2015 when compared to Bremen.
-    Although the reasons behind these difference are not obvious. Difference in vaccination or reporting behavior could be potential
-    reasons. Another interesting aspect with regards to machine learning is to group the different states according to the overall reported cases
-    as indicated by the block horizontal lines. And then train different models for the different groups. As we will see on the next page interestingly this approach worsen the predictive
-    power of our models. One reason for this could simply be that the decrease in training examples by only considering examples of one group outweights
-    the more similar influenza intensity of the members of one group.
+    The reasons behind these difference are not obvious. Difference in vaccination or reporting behavior could be potential
+    factors. An interesting result from training a machine learning model was that grouping the states according to their
+    overall number of reported cases and training different models per group did worsen the predicitive power. This applies
+    to both the classification approach as well as the regression ansatz. The group separation is indicated by the black
+    horizontal lines. One reason for this could simply be that the decrease in training examples by only considering
+    examples of one group outweighs the more similar influenza intensity of the members of one group.
 </p>
 
 <div align="center" class="scrollableFigureDiv">
@@ -50,17 +49,15 @@
 {{ div_overall_cases|safe }}
 </div>
 
-
 <p>
-    <br>
-    The below selection box is a so called multiselect box. That is to say either pressing and holding the left mouse botton multiple states can be selected. Then
-    by pressing and holding ctrl individual states can be selected or deselected by clicking on them and finally the data on the right is updated by clicking the
-    select button. Each of the four histograms below displays a black curve. This black curve is the result of a kernel density estimation and represents the estimated
+    The below selection box is a so called multiselect box. That is to say by pressing and holding the left mouse botton multiple states can be selected.
+    By pressing and holding ctrl individual states can be selected or deselected by clicking on them and finally the data on the right is updated by clicking the
+    "Calculate Histogram" button. Each of the four histograms below contains a black curve. This black curve is the result of a kernel density estimation and represents the estimated
     density of the underlying quantity. The quantities wave start and wave end referred to in these plots are defined as the first week and the last week of the cold
     weather season where more than 2.0 reported influenza cases per 100 000 inhabitants occurred. Again the outlier year 2009 is not included. These plot should provide an
     overview on the distribution of the wave start, end, the severity and the duration of the wave. Were the duration is simple wave end - wave start in calender weeks.
-    The severity of the wave is defined as the maximal height of the wave. It should be pointed out that the plot in the upper left corner narrows down the possible
-    period for a wave start. This start likely occurs in the first eight weeks of the year.
+    The severity of the wave is defined as the maximal height of the wave. It should be pointed out that the plot in the upper left corner narrows down the period
+    in which a wave start is likely. Inferring from the histogram this period is the first eight weeks of the year.
 </p>
 
 <div class="wrapperSelectFigure4Plots">
@@ -81,12 +78,12 @@
 </div>
 
 <p>
-    As mentioned above the below selection box is a so called multiselect box. That is to say either pressing and holding the left mouse botton multiple states can be selected. Then
-    by pressing and holding ctrl individual states can be selected or deselected by clicking on them and finally the data on the right is updated by clicking the
-    select button. As seen above the distribution of the wave start is quite has most mass in the first eight weeks of the year. The following two plots show that there is a relation once between the
-    wave start and the wave severity and between the wave start and the wave length. In both cases roughly the relation is that
-    the earlier the wave starts in the more severe and longer the wave is. Thus typically the critical period for a severe influenza outbreak
-    can be narrowed down further.
+    As mentioned above the below selection box is a so called multiselect box. By pressing and holding the left mouse botton multiple states can be selected.
+    By pressing and holding ctrl individual states can be selected or deselected by clicking on them and finally the data on the right is updated by clicking the
+    "Calculate Histogram" button. As seen above the distribution of the wave start has most mass on the first eight weeks of the year.
+    The following two plots show that there is a relation between the wave start and the wave severity and between the
+    wave start and the wave length. In both cases this relation is roughly that the earlier the wave starts the more severe
+    and longer the it is. Thus the typical period for a severe influenza outbreak can be narrowed down further.
 </p>
 
 <div class="wrapperSelectFigure2Plots">
@@ -107,14 +104,12 @@
 </div>
 
 <p>
-    <p class="pSmallHeading">Page Summary:</p>
-    On this page the influenza virus itself was in the focus. The main results were that influenza infections occur in waves.
+    This page focused on the reported influenza cases per state. The main results were that influenza infections occur in waves.
     The start and the end of these waves are quite similar in the different states of Germany but the severity and the overall
-    number of infections varies strongly between states. Only a small portion of the wave starts occur outside the period of
-    the second till the 8th week of the year and the tendency is that the earlier a typical wave starts the longer it lasts and the more severe it is.
+    number of infections varies strongly between states. Only a small portion of the wave starts occur outside the period from
+    the second till the 8th week of the year and the tendency is that the earlier a wave starts the longer it lasts and the more severe it is.
     <br>
-    <br>
-    On the next page we will switch our focus to the classification model.
+    On the next page we will shift our focus on the classification model.
 </p>
 
 <div class="pagination1">

@@ -1,0 +1,250 @@
+/**/
+/* Body and Text: Start:*/
+/**/
+
+body {
+  font-family:"avenir next", Arial, sans-serif;
+  font-size: 12px;
+  color: #000;
+}
+
+/*Page Headings*/
+
+.pSmallHeading {
+    font-size: 15px;
+}
+
+.pLargeHeading{
+    font-size: 20px
+}
+
+/**/
+/* Body and Text: End:*/
+/**/
+
+
+/**/
+/* Content Table: Start*/
+/**/
+
+.divContentTable {
+    font-size: 20px;
+    color: black;
+}
+
+.aContentTable {
+    color: inherit;
+}
+
+.notCurrentLiContentTable {
+    color: grey;
+}
+
+.metricsFigureDiv {
+    padding-bottom: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+
+/**/
+/* Content Table: End*/
+/**/
+
+
+/**/
+/*Pagination: Start*/
+/**/
+
+.pagination1 {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    text-align: center;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.pagination1 a {
+    color: #696969;
+    background-color: #000;
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.pagination1 a.active {
+    color: #000;
+    background-color: #696969;
+    border-radius: 5px;
+}
+
+.pagination1 a:hover:not(.active) {
+    background-color: #ddd;
+    color: black;
+    border-radius: 5px;
+}
+
+/**/
+/*Pagination: End*/
+/**/
+
+
+/**/
+/*Formatting Elements Around Plots with Select or Multi-select Menu: Start:*/
+/**/
+
+
+/*Multi-Select*/
+.wrapperSelectFigure4Plots {
+    width: 100%;
+    height: 730px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.wrapperSelectFigure2Plots {
+    width: 100%;
+    height: 390px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.multiselectStates4Plots {
+    position: relative;
+    top: 15px;
+    width: 170px;
+    height: 700px;
+    /*float:left; !* add this *!*/
+    /*border: 1px solid red;*/
+}
+
+.multiselectStates2Plots {
+    position: relative;
+    top: 15px;
+    width: 170px;
+    height: 350px;
+    /*float:left; !* add this *!*/
+    /*border: 1px solid red;*/
+}
+
+.figureWithMultiselect4Plots {
+    position: relative;
+    width: 820px;
+    top: -700px;
+    left: 200px;
+    /*border: 1px solid green;*/
+    /*float: right; !* add this *!*/
+}
+
+.figureWithMultiselect2Plots {
+    position: relative;
+    width: 820px;
+    top: -350px;
+    left: 200px;
+    /*border: 1px solid green;*/
+    /*float: right; !* add this *!*/
+}
+
+
+/*Single Select or no Select*/
+
+.wrapperSelectFigure{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.scrollableFigureDiv {
+    overflow: auto;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    /*height: 530px;*/
+}
+
+#featureFigureDiv {
+    overflow: auto;
+    height: 520px;
+}
+
+#metricFigureDiv {
+    overflow-x: auto;
+    height: 520px;
+}
+
+.singleSelectAbove {
+    margin-top: 10px;
+}
+
+
+/**/
+/*Formatting Elements Around Plots with Select or Multi-select Menu: End:*/
+/**/
+
+
+/**/
+/*Select, Multi-select and Button Layouts: Start:*/
+/**/
+
+.multiSelect {
+    border: 1px solid #AAA;
+   color: #000;
+   font-size: inherit;
+   overflow: hidden;
+   padding: 6px 10px;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+   width: 160px;
+    background: #dcdcdc;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.confirmMultiSelect {
+  background: #dcdcdc;
+  padding-right: 26px;
+  border-radius: 3px;
+  border: 1px solid #AAA;
+  color: #000;
+  margin: 0;
+  padding: 0 12px;
+  width: 160px;
+    z-index: 2;
+}
+
+.selectDropDown {
+    border: 1px solid #AAA;
+   color: #000;
+   font-size: inherit;
+   overflow: hidden;
+   padding: 6px 10px;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+    width: 160px;
+    background: #dcdcdc;
+    cursor: pointer;
+    z-index: 3;
+}
+
+
+/*Test Start:*/
+
+/*@media all and (max-width: 768px) {*/
+    /*#testDiv1 {*/
+        /*display: none;*/
+    /*}*/
+/*}*/
+
+/*@media all and (max-width: 768px) {*/
+    /*#testDiv2 {*/
+    /*-webkit-transform:scale(0.5);*/
+    /*-moz-transform:scale(0.5);*/
+    /*-ms-transform:scale(0.5);*/
+    /*transform:scale(0.5);*/
+    /*}*/
+/*}*/
+
+
+/*Test End:*/

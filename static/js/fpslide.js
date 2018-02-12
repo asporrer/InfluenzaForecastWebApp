@@ -29,17 +29,26 @@ var ysliderRange = 30;
 
 
 var actualValuesColor = "#696969";
-var pred1Color = "#ff661a";
-var pred2Color = "#ff3333";
+var pred1Color = "#036564";  // "#ff661a";
+var pred2Color = "#550b1d";  // "#ff3333";
+
 
 var playButton = d3.select("#play-button");
 
 
-// Drop Down Selection Menu:
-var options = ["Bayern", "Bayern", "Bayern"];
+// Drop Down Selection Menus:
+var options = ['Baden-Wuerttemberg', 'Bayern', 'Berlin', 'Brandenburg', 'Bremen', 'Hamburg', 'Hessen',
+                   'Mecklenburg-Vorpommern', 'Niedersachsen', 'Nordrhein-Westfalen', 'Rheinland-Pfalz', 'Saarland',
+                   'Sachsen', 'Sachsen-Anhalt', 'Schleswig-Holstein', 'Thueringen'];
 var stateString = options[0];
 
+var optionsYear = ['2014', '2013', '2012', '2011', '2010', '2008', '2007', '2006', '2005']
+var year ='2014';
+
 var select = d3.select("#fpsDD")
+    .on('change',onchange);
+
+var selectYear = d3.select("#fpsDDYear")
     .on('change',onchange);
 
 select
@@ -48,11 +57,17 @@ select
 	.append('option')
 		.text(function (d) { return d; });
 
+selectYear
+  .selectAll('option')
+	.data(optionsYear).enter()
+	.append('option')
+		.text(function (d) { return d; });
+
 function onchange() {
 	selectValue = d3.select('select').property('value');
-	updatePlotBasedOnSelection(selectValue);
+	selectValueYear = d3.select('#fpsDDYear').property('value');
+	updatePlotBasedOnSelection(selectValue, selectValueYear);
 };
-
 
 var svg = d3.select("#svgId")
     .append("svg")
@@ -84,7 +99,7 @@ svg.append("text")
     .attr("transform", "translate(" + (leftMarginyAxis - 30) + "," + Math.round((yScaleRangeEnd - yScaleRangeStart)/2 + yScaleRangeStart) + ")rotate(-90)");
 
 // Legend
-var xlegendLineStart = svgWidth * 7/9 - 25;
+var xlegendLineStart = xScaleRangeStart + (xScaleRangeEnd - xScaleRangeStart)/40 //svgWidth * 7/9 - 25;
 var ylegendLineStart = 2/9*svgHeight;
 
 var ylegendDistance = 20;
@@ -149,8 +164,12 @@ var lineGraphActual;
 var lineGraphPred1;
 var lineGraphPred2;
 
+var areaGraphActual;
+var areaGraphPred1;
+var areaGraphPred2;
+
 var moving = false;
-var currentIndex = 0;
+var currentIndex = 20;
 
 
 var formatDateIntoMonthDayYear = d3.timeFormat("%d. %b %Y");
@@ -207,6 +226,13 @@ var lineFunction = d3.line()
         return yScale(d[1]); })
     .curve(d3.curveStepAfter);
 
+// Area function for the area under the step plot
+var area = d3.area()
+    .x(function(d) { return xScale(d[0]); })
+    .y0(yScaleRangeStart)
+    .y1(function(d) { return yScale(d[1]); })
+    .curve(d3.curveStepAfter);
+
 // Get the current index for the current value of the slider button.
 function getCurrentIndex(curValParam) {
     var helperDatelineArray = datelineArray.filter(function(d) {
@@ -258,8 +284,7 @@ function getZippedDatasets(dataset1Par, dataset2Par) {
     return returnDataset;
 };
 
-
-d3.csv("/static/data/v1/wholeDateLine.csv", prepareWholeDateline, function (data1) {
+d3.csv("/static/data/fpslide/wholeDateLine" + year + ".csv", prepareWholeDateline, function (data1) {
     datelineArray = data1;
     startDate = datelineArray[0];
     endDate = datelineArray[data1.length - 1];
@@ -297,18 +322,21 @@ d3.csv("/static/data/v1/wholeDateLine.csv", prepareWholeDateline, function (data
     handle = slider.insert("circle", ".track-overlay")
         .attr("class", "handle")
         .attr("r", 9)
-        .attr("cx", slider_range_start);
+        .attr("cx", sliderDatesScale(datelineArray[currentIndex])); // slider_range_start is default
 
 
     label = slider.append("text")
         .attr("class", "label")
         .attr("text-anchor", "middle")
-        .text(formatDate(startDate))
+        .text(formatDate(datelineArray[currentIndex])) // startDate is default
         .attr("transform", "translate(" + 0 + "," + (-15) + ")")
-        .attr("x", slider_range_start);
+        .attr("x", sliderDatesScale(datelineArray[currentIndex])); // slider_range_start is default
+
+    // Array length to calculate the ticks
+    var array_length = datelineArray.length;
 
     textsSlider = group.selectAll("text")
-        .data(sliderDatesScale.ticks(5))
+        .data([datelineArray[0], datelineArray[Math.floor((array_length-1)/3)], datelineArray[Math.floor((array_length-1)*2/3)], datelineArray[array_length-1]])
         .enter()
         .append("text")
         .attr("x", sliderDatesScale)
@@ -319,19 +347,19 @@ d3.csv("/static/data/v1/wholeDateLine.csv", prepareWholeDateline, function (data
         });
 
 
-    d3.csv("/static/data/v1/currentDates.csv", prepareDates, function (data2) {
+    d3.csv("/static/data/fpslide/currentDates" + year + ".csv", prepareDates, function (data2) {
         currentDateHorizonArrays = data2;
 
-        d3.csv("/static/data/v1/futureDates.csv", prepareDates, function (data3) {
+        d3.csv("/static/data/fpslide/futureDates" + year + ".csv", prepareDates, function (data3) {
             futureDatesArrays = data3;
 
-            d3.csv("/static/data/v1/influenza" + stateString + ".csv", prepareValues, function (data4) {
+            d3.csv("/static/data/fpslide/influenza" + stateString + year + ".csv", prepareValues, function (data4) {
                 currentHorizonInfluenzaArrays = data4;
 
-                d3.csv("/static/data/v1/prediction1" + stateString + ".csv", prepareValues, function (data5) {
+                d3.csv("/static/data/fpslide/prediction1" + stateString + year + ".csv", prepareValues, function (data5) {
                     prediction1InfluArrays = data5;
 
-                    d3.csv("/static/data/v1/prediction2" + stateString + ".csv", prepareValues, function (data6) {
+                    d3.csv("/static/data/fpslide/prediction2" + stateString + year + ".csv", prepareValues, function (data6) {
                         prediction2InfluArrays = data6;
 
                         actualDatesInfluArrays = getZippedDatasets(currentDateHorizonArrays, currentHorizonInfluenzaArrays);
@@ -385,6 +413,17 @@ d3.csv("/static/data/v1/wholeDateLine.csv", prepareWholeDateline, function (data
 
                         var currentDate = datelineArray[currentIndex];
 
+                        var dotted_line_text_color = "black";
+
+                         svg.append("text")
+                           .text("Past")
+                           .attr("text-anchor", "left")
+                           .attr("x", xScale(currentDate) - (xScaleRangeEnd - xScaleRangeStart)/10)
+                           .attr("y", yScale(yMaxValue))
+                           .attr("font-family", "sans-serif")
+                           .attr("font-size", textSize)
+                           .attr("fill", dotted_line_text_color);
+
                         svg.append("line")
                             .attr("x1", xScale(currentDate))
                             .attr("y1", yScale(0))
@@ -395,11 +434,62 @@ d3.csv("/static/data/v1/wholeDateLine.csv", prepareWholeDateline, function (data
                             .style("fill", "none")
                             .style("stroke-dasharray", ("3, 3"));
 
+                        svg.append("text")
+                           .text(" Future")
+                           .attr("text-anchor", "left")
+                           .attr("x", xScale(currentDate) + (xScaleRangeEnd - xScaleRangeStart)/20)
+                           .attr("y", yScale(yMaxValue))
+                           .attr("font-family", "sans-serif")
+                           .attr("font-size", textSize)
+                           .attr("fill", dotted_line_text_color);
+
+                        svg.append("line")
+                            .attr("x1", xScale(datelineArray[currentIndex+4]))
+                            .attr("y1", yScale(0))
+                            .attr("x2", xScale(datelineArray[currentIndex+4]))
+                            .attr("y2", yScale(yMaxValue))
+                            .style("stroke-width", 2)
+                            .style("stroke", "black")
+                            .style("fill", "none")
+                            .style("stroke-dasharray", ("3, 7"));
+
+                        svg.append("text")
+                           .text(" More than 4 Week in Advance")
+                           .attr("text-anchor", "left")
+                           .attr("x", xScale(datelineArray[currentIndex+4]) + (xScaleRangeEnd - xScaleRangeStart)/40)
+                           .attr("y", yScale(yMaxValue))
+                           .attr("font-family", "sans-serif")
+                           .attr("font-size", textSize)
+                           .attr("fill", dotted_line_text_color);
+
+                        svg.append("line")
+                            .attr("x1", xScale(datelineArray[currentIndex+10]))
+                            .attr("y1", yScale(0))
+                            .attr("x2", xScale(datelineArray[currentIndex+10]))
+                            .attr("y2", yScale(yMaxValue))
+                            .style("stroke-width", 2)
+                            .style("stroke", "black")
+                            .style("fill", "none")
+                            .style("stroke-dasharray", ("3, 11"));
+
+                        svg.append("text")
+                           .text(" More than 10 Week in Advance")
+                           .attr("text-anchor", "left")
+                           .attr("x", xScale(datelineArray[currentIndex+10]) + (xScaleRangeEnd - xScaleRangeStart)/40)
+                           .attr("y", yScale(yMaxValue))
+                           .attr("font-family", "sans-serif")
+                           .attr("font-size", textSize)
+                           .attr("fill", dotted_line_text_color);
+
                         lineGraphActual = svg.append("path")
                             .attr("d", lineFunction(actualDatesInfluArray))
                             .attr("stroke", actualValuesColor)
                             .attr("stroke-width", 1)
                             .attr("fill", "none");
+
+                        areaGraphActual = svg.append("path")
+                           .attr("d", area(actualDatesInfluArray))
+                           .attr("class", "areaActual");
 
                         lineGraphPred1 = svg.append("path")
                             .attr("d", lineFunction(pred1DatesInfluArray))
@@ -407,11 +497,19 @@ d3.csv("/static/data/v1/wholeDateLine.csv", prepareWholeDateline, function (data
                             .attr("stroke-width", 1)
                             .attr("fill", "none");
 
+                        areaGraphPred1 = svg.append("path")
+                           .attr("d", area(pred1DatesInfluArray))
+                           .attr("class", "areaPred1");
+
                         lineGraphPred2 = svg.append("path")
                             .attr("d", lineFunction(pred2DatesInfluArray))
                             .attr("stroke", pred2Color)
                             .attr("stroke-width", 1)
                             .attr("fill", "none");
+
+                        areaGraphPred2 = svg.append("path")
+                           .attr("d", area(pred2DatesInfluArray))
+                           .attr("class", "areaPred2");
 
                         playButton
                             .on("click", function () {
@@ -445,15 +543,16 @@ d3.csv("/static/data/v1/wholeDateLine.csv", prepareWholeDateline, function (data
 
 // This function updates the plot based on the drop down selection.
 // The drop down menu offers to choose a state.
-function updatePlotBasedOnSelection(stateString) {
+function updatePlotBasedOnSelection(stateString, yearString) {
 
-    d3.csv("/static/data/v1/wholeDateLine.csv", prepareWholeDateline, function (data1) {
+    d3.csv("/static/data/fpslide/wholeDateLine" + yearString + ".csv", prepareWholeDateline, function (data1) {
 
         datelineArray = data1;
         startDate = datelineArray[0];
         endDate = datelineArray[data1.length - 1];
 
-        sliderDatesScale.domain([startDate, endDate]);
+        sliderDatesScale.domain([startDate, endDate])
+                        .range([slider_range_start, slider_range_end]);
 
         slider
             .attr("x1", sliderDatesScale.range()[0])
@@ -464,29 +563,39 @@ function updatePlotBasedOnSelection(stateString) {
             .text(formatDate(startDate))
             .attr("x", slider_range_start);
 
+
+        // Array length to calculate the ticks
+        var array_length = datelineArray.length
+
         textsSlider
-            .data(sliderDatesScale.ticks(5))
-            .attr("x", sliderDatesScale);
+            .data([datelineArray[0], datelineArray[Math.floor((array_length-1)/3)], datelineArray[Math.floor((array_length-1)*2/3)], datelineArray[array_length-1]])
+            .attr("x", sliderDatesScale)
+            .attr("y", 10)
+            .attr("text-anchor", "middle")
+            .text(function (d) {
+                return formatDateIntoMonthDayYear(d);
+            });
 
 
-        d3.csv("/static/data/v1/currentDates.csv", prepareDates, function (data2) {
+        d3.csv("/static/data/fpslide/currentDates" + yearString + ".csv", prepareDates, function (data2) {
             currentDateHorizonArrays = data2;
 
-            d3.csv("/static/data/v1/futureDates.csv", prepareDates, function (data3) {
+            d3.csv("/static/data/fpslide/futureDates" + yearString + ".csv", prepareDates, function (data3) {
                 futureDatesArrays = data3;
 
-                d3.csv("/static/data/v1/influenza" + stateString + ".csv", prepareValues, function (data4) {
+                d3.csv("/static/data/fpslide/influenza" + stateString + yearString + ".csv", prepareValues, function (data4) {
                     currentHorizonInfluenzaArrays = data4;
 
-                    d3.csv("/static/data/v1/prediction1" + stateString + ".csv", prepareValues, function (data5) {
+                    d3.csv("/static/data/fpslide/prediction1" + stateString + yearString + ".csv", prepareValues, function (data5) {
                         prediction1InfluArrays = data5;
 
-                        d3.csv("/static/data/v1/prediction2" + stateString + ".csv", prepareValues, function (data6) {
+                        d3.csv("/static/data/fpslide/prediction2" + stateString + yearString + ".csv", prepareValues, function (data6) {
                             prediction2InfluArrays = data6;
 
                             actualDatesInfluArrays = getZippedDatasets(currentDateHorizonArrays, currentHorizonInfluenzaArrays);
                             pred1DatesInfluArrays = getZippedDatasets(futureDatesArrays, prediction1InfluArrays);
                             pred2DatesInfluArrays = getZippedDatasets(futureDatesArrays, prediction2InfluArrays);
+
 
                             update();
 
@@ -497,7 +606,6 @@ function updatePlotBasedOnSelection(stateString) {
         })
     })
 };
-
 
 function step() {
     currentIndex = currentIndex + 1;
@@ -516,6 +624,13 @@ function step() {
 
 // Update the the drag button
 function update() {
+
+    // In case the svg is updated and the current happens to be out of bound with respect
+    // new array.
+    if (actualDatesInfluArrays.length - 1 < currentIndex) {
+        currentIndex = actualDatesInfluArrays.length - 1
+    }
+
     // update position and text of label according to slider scale
     handle.attr("cx", sliderDatesScale(datelineArray[currentIndex]));
     label
@@ -554,11 +669,22 @@ function update() {
         .duration(0)
         .attr("d", lineFunction(actualDatesInfluArray));
 
+    areaGraphActual
+        .transition()
+        .duration(0)
+        .attr("d", area(actualDatesInfluArray));
+
     lineGraphPred1
         .transition()
         .delay(300)
         .duration(800)
         .attr("d", lineFunction(pred1DatesInfluArray));
+
+    areaGraphPred1
+        .transition()
+        .delay(300)
+        .duration(800)
+        .attr("d", area(pred1DatesInfluArray));
 
     lineGraphPred2
         .transition()
@@ -566,4 +692,11 @@ function update() {
         .duration(1000)
         .attr("d", lineFunction(pred2DatesInfluArray));
 
+    areaGraphPred2
+        .transition()
+        .delay(300)
+        .duration(1000)
+        .attr("d", area(pred2DatesInfluArray));
+
 };
+

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}About{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pageFormattingContact.css') }}">
+{% endblock %}
+
+{% block page_content %}
+
+<p id="contactParagraph">
+    <p class="mediumHeadding">
+    Contact
+    </p>
+    Please feel free to contact me. I am always happy to answer question or to receive feedback. The implementation of this website can be found on this github repository. The implementation of the influenza forecast can be found here including a jupyter notebook.
+</p>
+<div id="contactPanel">
+    <p>Contact or Visit me via:</p>
+    <p>
+        <a href="mailto:anton.sporrer@yahoo.com"><img class="alignnone wp-image-3082" style="border: 0;" src="{{ url_for('static', filename='images/email_circle.png') }}" alt="Email" width="50" height="50"></a>
+        &nbsp;
+        <a href="https://www.xing.com"><img class="alignnone wp-image-3080" style="border: 0;" src="{{ url_for('static', filename='images/xing_circle.png') }}" alt="Xing" width="50" height="50"></a>
+        &nbsp;
+        <a href="http://www.linkedin.com"><img class="alignnone wp-image-3079" style="border: 0;" src="{{ url_for('static', filename='images/linkedin_circle.png') }}" alt="Linkedin" width="50" height="50"></a>
+        &nbsp;
+        <a href="https://github.com/asporrer"><img class="alignnone wp-image-3081" style="border: 0;" src="{{ url_for('static', filename='images/github_circle.jpg') }}" alt="Github" width="50" height="50"></a>
+    </p>
+</div>
+{% endblock %}
+
