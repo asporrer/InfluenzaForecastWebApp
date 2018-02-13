@@ -1,0 +1,2 @@
+## Influenza Forecasting Webapp:
+This repository contains the deployable code for the [influenza forecasting webapp](https://influenzaforecast.herokuapp.com/). This webapp is deployed using the application plattform https://www.heroku.com/. (The initial loading of the web app can take up to 20 seconds since it is hosted via my free tier Heroku account afterwards there are no delayed loading times for an hour.)
