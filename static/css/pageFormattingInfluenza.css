@@ -11,7 +11,7 @@ body {
 /*Page Headings*/
 
 .pSmallHeading {
-    font-size: 15px;
+    font-size: 17px;
 }
 
 .pLargeHeading{
@@ -46,7 +46,6 @@ body {
     margin-bottom: 20px;
     overflow-x: auto;
 }
-
 
 /**/
 /* Content Table: End*/
@@ -96,7 +95,6 @@ body {
 /**/
 /*Formatting Elements Around Plots with Select or Multi-select Menu: Start:*/
 /**/
-
 
 /*Multi-Select*/
 .wrapperSelectFigure4Plots {
@@ -178,7 +176,6 @@ body {
     margin-top: 10px;
 }
 
-
 /**/
 /*Formatting Elements Around Plots with Select or Multi-select Menu: End:*/
 /**/
@@ -227,6 +224,10 @@ body {
     cursor: pointer;
     z-index: 3;
 }
+
+/**/
+/*Select, Multi-select and Button Layouts: End:*/
+/**/
 
 
 /*Test Start:*/

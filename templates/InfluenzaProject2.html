@@ -10,7 +10,9 @@
 {% endblock %}
 
 {% block page_content %}
+
 <h1>Influenza Forecasting</h1>
+
 <div class="divContentTable">
     <ol>
         <li class="notCurrentLiContentTable"><a class="aContentTable" href="{{ url_for('render_influenza_project1') }}">Overview</a></li>
@@ -18,18 +20,21 @@
         <li class="notCurrentLiContentTable"> <a class="aContentTable" href="{{ url_for('render_influenza_project3') }}">Forecasting as a Classification Problem</a> </li>
     </ol>
 </div>
+
 <p>
     As mentioned on the previous page we now focus on the statistics of the number of reported influenza infections on a state level.
 </p>
+
 <p>
     First let's visualize the reported influenza cases per 100 000 inhabitants in the sixteen states of Germany.
     The plot is at first sight a bit messy. To <b>hide/unhide</b> particular states just <b>click on the state</b> in the legend. This will make the plot clearer.
     But this plot although a bit messy at first glance conveys at least two important messages. First, we can see that influenza occurs in waves. Approximately one wave per winter. The waves can rise and fall sharply.
     Second, the progressions of the waves in different states seem to coincide roughly. Thus a rising number of reported influenza infections in one state is an indicator of the rise of reported influenza infections in other states with currently low infection numbers.
 </p>
+
 <div id="vanillaDiv" class="scrollableFigureDiv" align="center">
-{{ script_vanilla|safe }}
-{{ div_vanilla|safe }}
+    {{ script_vanilla|safe }}
+    {{ div_vanilla|safe }}
 </div>
 
 <p>
@@ -45,8 +50,8 @@
 </p>
 
 <div align="center" class="scrollableFigureDiv">
-{{ script_overall_cases|safe }}
-{{ div_overall_cases|safe }}
+    {{ script_overall_cases|safe }}
+    {{ div_overall_cases|safe }}
 </div>
 
 <p>

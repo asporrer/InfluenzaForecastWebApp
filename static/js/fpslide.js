@@ -169,7 +169,7 @@ var areaGraphPred1;
 var areaGraphPred2;
 
 var moving = false;
-var currentIndex = 20;
+var currentIndex = 15;
 
 
 var formatDateIntoMonthDayYear = d3.timeFormat("%d. %b %Y");

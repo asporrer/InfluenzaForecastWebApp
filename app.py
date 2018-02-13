@@ -11,16 +11,11 @@ from sklearn.neighbors import KernelDensity
 
 # Plotting
 from bokeh.plotting import figure
-from bokeh.models import Range1d, LinearAxis, DatetimeTickFormatter, ColumnDataSource, LinearColorMapper, \
-    LogColorMapper, LabelSet, HoverTool
+from bokeh.models import Range1d, LinearAxis, DatetimeTickFormatter, ColumnDataSource, HoverTool
 from bokeh.palettes import Category20b
 from bokeh.transform import linear_cmap
 from bokeh.layouts import column, row
 from bokeh.embed import components
-from sklearn.metrics import accuracy_score, precision_score, recall_score, fbeta_score, log_loss,\
-    roc_auc_score, confusion_matrix
-
-
 
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
@@ -58,13 +53,15 @@ app.config['SECRET_KEY'] = 'd90Fj238A679bn940sn4Ghrq9b08a962Nvfm2390'
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
-# Getting the data frame containing the features and target variable for all sixteen states from 2005 until 2015.
+# Loading the data frame containing the features and target variable for all sixteen states from 2005 until 2015.
 with open(data_location, 'rb') as file:
     data_df = pickle.load(file)
 
+# Used for selecting and plotting metrics figures. The order of the lists matters.
 metric_name_list = ['Accuracy', 'Precision', 'Recall', 'F2_Score', 'ROC_AUC', 'Log_Loss']
 metric_path_list = [metrics_accuracy_script_div_path, metrics_precision_script_div_path, metrics_recall_script_div_path,
                     metrics_f2score_script_div_path, metrics_auc_script_div_path, metrics_logloss_script_div_path]
+
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -78,16 +75,28 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('InfluenzaProject1.html')
+    """
+    The start page of the influenza project is rendered.
+    More information about the d3 visualization can be found in the fpsslide.css file.
+
+    :return: A str, containing the respective html and javascript code.
+    """
+    return render_template('index.html')
 
 
 @app.route('/InfluenzaProject1', methods=['GET'])
 def render_influenza_project1():
-    return render_template('InfluenzaProject1.html')
+    return render_template('index.html')
 
 
 @app.route('/InfluenzaProject2', methods=['GET'])
 def render_influenza_project2():
+    """
+    This function renders the second page of the influenza project.
+    To improve loading time pre-generated figures are loaded.
+
+    :return: A str, containing the respective html and javascript code.
+    """
 
     state_list = data_df['state'].unique().tolist()
 
@@ -114,6 +123,12 @@ def render_influenza_project2():
 
 @app.route('/InfluenzaProject3', methods=['GET'])
 def render_influenza_project3():
+    """
+    This function renders the third page of the influenza project.
+    To improve loading time pre-generated figures are loaded.
+
+    :return: A str, containing the respective html and javascript code.
+    """
 
     # Loading pregenerated plots to speed up loading of the page.
     with open(features_script_div_path, 'rb') as file:
@@ -145,17 +160,23 @@ def render_influenza_project3():
 
 @app.route('/Contact', methods=['GET'])
 def render_contact():
+    """
+    The contact page of the influenza project is rendered.
+
+    :return: A str, containing the respective html and javascript code.
+    """
+
     return render_template('contact.html')
 
 
 @app.route('/waveStatisticsFigure')
 def wave_statistics_figure():
     """
-    This function is called via an ajax. The code is located in ajaxscripts.js.
+    This function is called via an ajax. The code is located at ajaxscripts.js.
 
     :return: A str, containing the respective html and javascript code.
     """
-    # text = request.args.get('jsdata')
+
     state_list = request.args.getlist('jsdata[]')
 
     p_wave_stats = visualize_wave_stats_distributions(data_df, states=state_list)
@@ -211,7 +232,7 @@ def metrics_figure():
 
     for index_metric, name_metric in enumerate(metric_name_list):
         if state_str == name_metric:
-            # Loading pregenerated plots to speed up loading of the page.
+            # Loading pre-generated plots to speed up loading of the page.
             with open(metric_path_list[index_metric], 'rb') as file:
                 script, div = pickle.load(file)
 
@@ -225,8 +246,9 @@ def metrics_figure():
 def generate_new_plots():
     """
     This function generates new versions of the bokeh plots
-    transforms them into an embeddable version and than stores them
-    to decrease the loading time of the site.
+    transforms them into an embeddable format and than stores them
+    to data/plots. Reloading the stored plots improves the loading
+    time as compared to generating the plots from scratch.
 
     :return: None
     """
@@ -265,7 +287,7 @@ def generate_new_plots():
 
 def visualize_state_commonalities(data_df):
     """
-    This function returns a bokeh visualization of the influenza waves in the states of Germany from 2005 till 2015.
+    This function returns a bokeh visualization of the influenza waves for the states of Germany from 2005 till 2015.
 
     :param data_df: A pandas.DataFrame, containing the influenza progression of the sixteen states of Germany.
     :return: A bokeh figure, visualizing the influenza progressions of the sixteen states of Germany.
@@ -281,7 +303,7 @@ def visualize_state_commonalities(data_df):
 
             kwargs_state_influenza_dict[current_state] = state_df['influenza_week-1'].tolist()[:-1]
 
-    return plot_results('States of Germany', 'Date', '# Influenza Infections per 100.000 Inhabitants',
+    return plot_results('States of Germany', 'Date', '# Influenza Infections per 100 000 Inhabitants',
                         data_df['year_week'].unique().tolist()[1:], **kwargs_state_influenza_dict)
 
 
@@ -339,9 +361,9 @@ def visualize_overall_reported_cases(data_df):
     """
     This function visualizes the cumulative number of reported influenza infections for each of the sixteen
     states of Germany from 2005 till 2015. The period from the 25th week of 2009 till the 24th week of 2010 is excluded.
-    In this period the "outlayer wave" occured (the swine flu).
+    In this period the "outlier wave" (swine flu) occurred.
 
-    :param data_df: A pandas.DataFrame, containing a row with names 'state', 'influenza_week-1'.
+    :param data_df: A pandas.DataFrame, containing a rows with names 'state', 'influenza_week-1'.
     :return: A bokeh figure, visualizing the sum of the overall reported influenza infections for each of the sixteen
     states of Germany.
     """
@@ -352,7 +374,7 @@ def visualize_overall_reported_cases(data_df):
 
     source = ColumnDataSource(data=dict(states=states, sum_of_rep_cases=sum_of_rep_cases))
 
-    TOOLS = "pan,wheel_zoom,box_zoom,reset,hover,save"
+    TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
     p = figure(plot_height=500, plot_width=500, x_range=states, y_range=(0, 900), tools=TOOLS,
                title="Total Number of Reported Influenza Infections from 2005-2015",
@@ -363,10 +385,6 @@ def visualize_overall_reported_cases(data_df):
                                                       high=900))
     p.line(x=[0, 16], y=[500, 500], color='black')
     p.line(x=[0, 16], y=[300, 300], color='black')
-
-    hover = p.select_one(HoverTool)
-    hover.point_policy = "follow_mouse"
-    hover.tooltips = [("State", "@states"), ("Total Sum of Reported Infections", "@sum_of_rep_cases")]
 
     p.xgrid.grid_line_color = None
     p.xaxis.major_label_orientation = 3.0 / 4
@@ -379,10 +397,10 @@ def get_number_of_reported_infected_per_state(input_df):
     """
     This function extracts the overall number of reported influenza infections for each state in Germany and returns
     the respective dictionary. The period from the 25th week of 2009 till the 24th week of 2010 is excluded. In this
-    period the "outlayer wave" occured (the swine flu).
+    period the "outlier wave" (swine flu) occurred.
 
-    :param input_df: A pandas.DataFrame, containing a row with names 'state', 'influenza_week-1'.
-    :return: A dict, holding the sixteen states of Germany as key. The values is the overall sum of reported influenza
+    :param input_df: A pandas.DataFrame, containing a rows with names 'state', 'influenza_week-1'.
+    :return: A dict, holding the sixteen states of Germany as key. The values are the overall sum of reported influenza
     cases normalized by 100 000 inhabitants.
     """
 
@@ -400,7 +418,15 @@ def get_number_of_reported_infected_per_state(input_df):
 
 
 def visualize_wave_stats_distributions(input_df, states=['all']):
+    """
+    This function provides statistics about the influenza wave on a state level in the form of a figure.
 
+    :param input_df: A pandas.DataFrame, containing rows with names 'year_week', 'state', 'influenza_week-1'.
+    :param states: A list, containing the names of the states relevant for the statistic.
+    :return: A Bokeh Column, containing the four figures visualizing wave statistics.
+    """
+
+    # Getting the wave statistics.
     first_last_week_max_length_of_wave_dict = get_first_last_week_max_length_of_wave(input_df, current_states=states)
 
     first_list = [year_week[1] for year_week in first_last_week_max_length_of_wave_dict['first']]
@@ -408,13 +434,13 @@ def visualize_wave_stats_distributions(input_df, states=['all']):
     max_list = first_last_week_max_length_of_wave_dict['max']
     length_list = first_last_week_max_length_of_wave_dict['length']
 
-
     value_list_list = [first_list, last_list, max_list, length_list]
     title_list = ['Week of Year the Wave Started', 'Week of Year the Wave Ended',
                   'Severity of the Wave in Infected per 100 000 Inhabitants', 'Duration of the Wave in Weeks']
     x_labels_list = ['Week of the Year', 'Week of the Year', 'Infected per 100 000 Inhabitants', 'Duration in Weeks']
     p_list = []
 
+    # Generating the histogram and estimated density.
     for index in range(4):
         min_value = min(value_list_list[index])
         max_value = max(value_list_list[index])
@@ -425,7 +451,6 @@ def visualize_wave_stats_distributions(input_df, states=['all']):
 
         p = figure(title=title_list[index], x_axis_label=x_labels_list[index], y_axis_label='Probabilities',
                    plot_width=400, plot_height=350,)
-
 
         p.xaxis[0].ticker.desired_num_ticks = 20
 
@@ -443,6 +468,17 @@ def visualize_wave_stats_distributions(input_df, states=['all']):
 
 
 def get_first_last_week_max_length_of_wave(input_df, current_states=['all']):
+    """
+    This function returns the wave start, wave end, wave length and height of the states specified by the above state
+    parameter. A wave start is defined as the first week of a cold weather season in which the threshold of 2.0 infected
+    per 100 000 inhabitants is crossed. The outlier year 2009 (swine flu) is excluded.
+
+    :param input_df: A pandas.DataFrame, containing rows with names 'year_week', 'state', 'influenza_week-1'.
+    :param current_states: A list, containing the names of the states relevant for the statistic.
+    :return: A dict, containing the first, last week of a wave, the length and the height of a wave in the form of
+    four numpy.ndarrays. First, last week and length, height are associated via the index of their numpy.ndarray.
+    That is to say same index means that the value belongs to the same wave.
+    """
 
     first_list = []
     last_list = []
@@ -452,7 +488,7 @@ def get_first_last_week_max_length_of_wave(input_df, current_states=['all']):
     for state in input_df['state'].unique().tolist():
         if state in current_states or current_states[0] == 'all':
             helper_first_list, helper_last_list, helper_max_list = get_first_last_max_per_state(input_df, state)
-            first_list.extend((helper_first_list))
+            first_list.extend(helper_first_list)
             last_list.extend(helper_last_list)
             max_list.extend(helper_max_list)
 
@@ -479,17 +515,35 @@ def get_first_last_week_max_length_of_wave(input_df, current_states=['all']):
             'length': list(np.array(length_list)[no_2009_and_not_waveless_indices])}
 
 
+def get_first_last_max_per_state(input_df, state_str, start_year=2005, end_year=2015, start_week=25, end_week=24,
+                                 target_column_name='influenza_week-1', threshold=2.0):
+    """
+    This function returns the wave start, wave end, wave max of the states specified by the above state
+    parameter. The underlying quantity does not have to be the number of influenza cases on a state level and it is
+    specified by target column parameter. In the usual case of referring to influenza infections a wave start is defined
+    as the first week of a cold weather season in which the threshold of infected per 100 000 inhabitants is crossed.
 
-def get_first_last_max_per_state(input_df, state_str, start_year=2005, end_year=2015, start_week=25, end_week=24, target_column_name='influenza_week-1'):
+    :param input_df: A pandas.DataFrame, containing rows with names 'year_week', 'state', target_column_name.
+    :param state_str: A str, the name of the state of interest.
+    :param start_year: An int, the start year of the interval in which the start, end and max of the waves are
+    calculated.
+    :param end_year: An int, the end year of the interval in which the start, end and max of the waves are
+    calculated.
+    :param start_week: An int, the start week of the interval in which the start, end and max of the waves are
+    calculated.
+    :param end_week: An int, the end week of the interval in which the start, end and max of the waves are
+    calculated.
+    :param target_column_name: The target column specifying the quantity of interest.
+    :param threshold: A float, the threshold specifying the start and the end of a wave.
+    :return: A 3-tuple, containing the first, last week of a wave and the max of a wave in the form of three lists.
+    First, last week and max are associated via the list index. That is to say same index means that the value belongs
+    to the same wave.
     """
 
-    :param input_df: A pandas.DataFrame,
-    :param state_str: A str,
-    :return:
-    """
-
-    if not ('year_week' in list(input_df.columns) and target_column_name in list(input_df.columns)):
-        raise ValueError('The input data frame has to have the column names "year_week" and ' + target_column_name + '.')
+    if not ('year_week' in list(input_df.columns) and 'state' in list(input_df.columns)
+            and target_column_name in list(input_df.columns)):
+        raise ValueError('The input data frame has to have the column names "year_week" and ' + target_column_name
+                         + '.')
 
     first_list = []
     last_list = []
@@ -503,30 +557,12 @@ def get_first_last_max_per_state(input_df, state_str, start_year=2005, end_year=
         max_list.append(current_year_df[target_column_name].max())
 
         influenza_list = current_year_df[target_column_name].tolist()
-        first_index = get_first_or_last_greater_than(influenza_list, 2.0)
-        last_index = get_first_or_last_greater_than(influenza_list, 2.0, first=False)
-
-
+        first_index = get_first_or_last_greater_than(influenza_list, threshold)
+        last_index = get_first_or_last_greater_than(influenza_list, threshold, first=False)
 
         if first_index is not None:
             helper_first = current_year_df['year_week'].iloc[first_index]
             helper_last = current_year_df['year_week'].iloc[last_index]
-
-            # # Test Code Start:
-            # print('year')
-            # print(year)
-            # print('State')
-            # print(state_str)
-            # print('first year_week')
-            # print(helper_first)
-            # print('last year_week')
-            # print(helper_last)
-            # print('first indices')
-            # print(current_year_df[target_column_name].iloc[first_index-1:first_index+2])
-            # print('last indices')
-            # print(current_year_df[target_column_name].iloc[last_index - 1:last_index + 2])
-            # print('')
-            # # Test Code end.
 
             first_list.append((helper_first[0], helper_first[1] - 1))
             last_list.append((helper_last[0], helper_last[1] - 1))
@@ -534,44 +570,90 @@ def get_first_last_max_per_state(input_df, state_str, start_year=2005, end_year=
             first_list.append((year, -1))
             last_list.append((year, -1))
 
-    return (first_list, last_list, max_list)
+    return first_list, last_list, max_list
 
 
-# Unit test passed
-def get_wave_complement_interval_split(data_df, start_year, start_week, end_year, end_week):
-    interval_bool_series = data_df['year_week'].apply(
+def get_wave_complement_interval_split(input_df, start_year, start_week, end_year, end_week):
+    """
+    This functions splits the input_df into two data frames according to the interval and
+    its complement specified by the parameters. (This function can be used
+    to perform a train - test split for instance.)
+
+    :param input_df: A pandas.DataFrame, containing a row with the name 'year_week'
+    :param start_year: An int, specifying the year the interval starts.
+    :param start_week: An int, specifying the week the interval starts.
+    :param end_year: An int, specifying the year the interval ends.
+    :param end_week: An int, specifying the week the interval ends.
+    :return: A 2-tuple, each entry of type pandas.DataFrame. The second data frame contains the rows of the input data
+    frame associated with the time interval specified by the start year and week and end year and week. The first data
+    frame contains the rows associated with the complement of the above time interval.
+    """
+    interval_bool_series = input_df['year_week'].apply(
         lambda x: (start_year <= x[0] and (start_week <= x[1] or start_year < x[0])) and (
                 x[0] <= end_year and (x[1] <= end_week or x[0] < end_year)))
 
     interval_complement_bool_series = interval_bool_series.apply(
-        lambda x: not x)  # map( lambda x: not x, interval_bool_series )
+        lambda x: not x)
 
-    interval_df = data_df[interval_bool_series]
-    interval_complement_df = data_df[interval_complement_bool_series]
+    interval_df = input_df[interval_bool_series]
+    interval_complement_df = input_df[interval_complement_bool_series]
 
     return interval_complement_df, interval_df
 
 
-def get_first_or_last_greater_than(input_list, threshold_float, first=True):
+def get_first_or_last_greater_than(input_list, threshold_float=2.0, first=True):
+    """
+    This function takes an list as input and returns the first (or last if first == False) index for which the
+    associated list element is greater than the threshold.
+
+    :param input_list: A list, of floats.
+    :param threshold_float: A float, the threshold.
+    :param first: A bool, specifying whether the index of the first or last element which crosses the threshold is
+    returned.
+    :return: An int or None, the index of the first (or last in case first == False) list element which crosses the
+    threshold. If all elements are smaller or equal to the threshold None is returned.
+    """
     my_range = range(len(input_list))
+
     if not first:
         my_range = reversed(my_range)
+
     for index in my_range:
-        if 2.0 < input_list[index]:
+        if threshold_float < input_list[index]:
             return index
+
     return None
 
 
 def kde_sklearn(x, x_grid, bandwidth=0.2, **kwargs):
+    """
+    This function returns the estimated density associated to the samples in x. Kernel density estimation is used to
+    estimate the density.
+
+    :param x: A numpy.ndarray, containing the samples.
+    :param x_grid: A numpy.ndarray, containing the x coordinates at which the estimated density is evaluated.
+    :param bandwidth: A float, the bandwidth for the density estimation.
+    :param kwargs:
+    :return: A numpy.ndarray, the values of the estimated density when evaluated at the grid points.
+    """
     """Kernel Density Estimation with Scikit-learn"""
     kde_skl = KernelDensity(bandwidth=bandwidth, **kwargs)
+
     kde_skl.fit(x[:, np.newaxis])
-    # score_samples() returns the log-likelihood of the samples
+
     log_pdf = kde_skl.score_samples(x_grid[:, np.newaxis])
+
     return np.exp(log_pdf)
 
 
 def visualize_wave_start_vs_severity_via_box(input_df, states=['all']):
+    """
+    The relation between the wave start and the severity of the wave is visualized via a box plot.
+
+    :param input_df: A pandas.DataFrame, containing rows with names 'year_week', 'state', 'influenza_week-1'.
+    :param states: A list, containing the relevant state names.
+    :return: A bokeh figure, visualizing the relation between wave start week and severity via a box plot.
+    """
 
     first_last_max_length_lists = list(get_first_last_week_max_length_of_wave(input_df, current_states=states).items())
     first_list = first_last_max_length_lists[0][1]
@@ -582,10 +664,20 @@ def visualize_wave_start_vs_severity_via_box(input_df, states=['all']):
     week_categories_unique_list = sorted(list(set(week_list)))
     week_categories_display_order_list = sorted(week_categories_unique_list, key=lambda x: int(x[-2:].strip()))
 
-    return box_plot(week_list, max_value_of_wave_list, week_categories_display_order_list, title="Wave Start vs Wave Severity", x_axis_label="Calender Week", y_axis_label='Number of Infected per 100 000 Inhabitants')
+    return box_plot(week_list, max_value_of_wave_list, week_categories_display_order_list,
+                    title="Wave Start vs Wave Severity", x_axis_label="Calender Week",
+                    y_axis_label='Number of Infected per 100 000 Inhabitants')
 
 
 def visualize_wave_start_vs_length_via_box(input_df, states=['all']):
+    """
+    The relation between the wave start and the length of the wave is visualized via a box plot.
+
+    :param input_df: A pandas.DataFrame, containing rows with names 'year_week', 'state', 'influenza_week-1'.
+    :param states: A list, containing the relevant state names.
+    :return: A bokeh figure, visualizing the relation between wave start week and length via a box plot.
+    """
+
     first_last_max_length_lists = list(get_first_last_week_max_length_of_wave(input_df, current_states=states).items())
 
     start_length_count_df = get_first_length_count_df(first_last_max_length_lists[0][1],
@@ -601,7 +693,9 @@ def visualize_wave_start_vs_length_via_box(input_df, states=['all']):
     week_categories_unique_list = sorted(list(set(first_week_list)))
     week_categories_display_order_list = sorted(week_categories_unique_list, key=lambda x: int(x[-2:].strip()))
 
-    box_fig = box_plot(first_week_list, wave_length_list, week_categories_display_order_list, title="Wave Start vs Wave Length in Weeks", x_axis_label="Calender Week", y_axis_label="Calender Week")
+    box_fig = box_plot(first_week_list, wave_length_list, week_categories_display_order_list,
+                       title="Wave Start vs Wave Length in Weeks", x_axis_label="Calender Week",
+                       y_axis_label="Calender Week")
     # Encoding the count of the start week, wave length pair in the x size.
     box_fig.x(x_count_list, y_count_list, color='black', size=np.array(count_for_size_list)*3)
 
@@ -609,6 +703,19 @@ def visualize_wave_start_vs_length_via_box(input_df, states=['all']):
 
 
 def box_plot(x_list, y_list, x_cat_unique_display_order_list, title="", x_axis_label="", y_axis_label=""):
+    """
+    This function returns a box plot. This is a modified version of
+    https://bokeh.pydata.org/en/latest/docs/gallery/boxplot.html.
+
+    :param x_list: A list, containing the categories.
+    :param y_list: A list, containing the values associated to the categories.
+    :param x_cat_unique_display_order_list: A list, containing the categories in a specific order. The categories will
+    be displayed on the x-axis in this order.
+    :param title: A str, the title of the figure.
+    :param x_axis_label: A str, the x axis label.
+    :param y_axis_label: A str, the y axis label.
+    :return: A bokeh figure, a box plot.
+    """
 
     x_categories_unique_sorted_list = sorted(list(set(x_list)))
     first_max_df = pd.DataFrame(columns=['group', 'score'])
@@ -642,8 +749,8 @@ def box_plot(x_list, y_list, x_cat_unique_display_order_list, title="", x_axis_l
                     outx.append(cat)
                     outy.append(value)
 
-    p = figure(title=title, plot_width=400, plot_height=350, x_range=x_cat_unique_display_order_list, x_axis_label=x_axis_label,
-               y_axis_label=y_axis_label)
+    p = figure(title=title, plot_width=400, plot_height=350, x_range=x_cat_unique_display_order_list,
+               x_axis_label=x_axis_label, y_axis_label=y_axis_label)
     # if no outliers, shrink lengths of stems to be no longer than the minimums or maximums
     qmin = groups.quantile(q=0.00)
     qmax = groups.quantile(q=1.00)
@@ -671,23 +778,40 @@ def box_plot(x_list, y_list, x_cat_unique_display_order_list, title="", x_axis_l
     p.xgrid.grid_line_color = None
     p.ygrid.grid_line_color = "white"
     p.grid.grid_line_width = 2
-    #p.xaxis.major_label_text_font_size = "12pt"
     p.xaxis.major_label_orientation = 3.0 / 4
 
     return p
 
 
 def get_first_length_count_df(first_list, length_list):
+    """
+    This function counts how often a certain combinations of (start week of wave, wave length in weeks) occurs and
+    returns a data frame containing this information.
+
+    :param first_list: A list, containing the first week of a waves.
+    :param length_list: A list, containing the wave lengths.
+    :return: A pandas.DataFrame, containing the count of how often a certain combinations of (start week of wave, wave
+    length in weeks) occurred
+    """
     count_dict = defaultdict(lambda: 0)
     for index in range(len(first_list)):
         count_dict[(first_list[index][1], length_list[index])] += 1
     return pd.DataFrame([[item[0][0], item[0][1], item[1]] for item in count_dict.items()], columns=['first_week',
-                                                                                                     'wave_length', 'count'])
+                                                                                                     'wave_length',
+                                                                                                     'count'])
 
 
 def visualize_data_per_state(input_df, state_str="Baden-Wuerttemberg"):
+    """
+    This function returns a bokeh figure visualizing the influenza, trend, temperature features for the specified state.
 
-    # State information
+    :param input_df: A pandas.DataFrame, containing rows with names 'state', 'year_week', influenza_week-1,
+    influenza_germany_week-1, trend_week-1, trend_germany_week-1, temp_mean-1.
+    :param state_str: A str, specifying the state.
+    :return: A bokeh figure, visualizing the features for the specified state.
+    """
+
+    # Only the rows associated to the current state are considered.
     state_indices = input_df['state'] == state_str
     state_df = input_df[state_indices]
 
@@ -702,8 +826,7 @@ def visualize_data_per_state(input_df, state_str="Baden-Wuerttemberg"):
 
     p = figure(plot_width=800, plot_height=500, title=state_str, x_axis_label='Date')
 
-    plot_x = [Week(year_week[0], year_week[1]).monday() for year_week in
-                  dates_list]
+    plot_x = [Week(year_week[0], year_week[1]).monday() for year_week in dates_list]
 
     p.xaxis.formatter = DatetimeTickFormatter(
         years=["%D %B %Y"]
@@ -749,362 +872,10 @@ def visualize_data_per_state(input_df, state_str="Baden-Wuerttemberg"):
 
     return p
 
-###
-# Start: Metric Figures
-###
-
-def visual_metrics():
-
-    # Getting the instance variables.
-    with open(data_for_metric_location, 'rb') as file:
-        week_threshold_years_list = pickle.load(file)
-
-    proba_threshold_list = [0.5, 0.4]
-
-    metric_list = [accuracy_score, precision_score, recall_score, lambda x, y: fbeta_score(x, y, 2.0), log_loss,
-                   roc_auc_score]
-    needs_binary_pred_bool_list = [True, True, True, True, False, False]
-    metric_needs_one_actual_bool_list = [False, False, True, True, True, True]
-    metric_name_list = ['Accuracy', 'Precision', 'Recall', 'F2 Score', 'Log Loss', 'AUC']
-    title_metric_plot_list = [metric + " per Test Year" for metric in metric_name_list]
-
-    threshold_list = [0.8, 7.0]
-    threshold_color_list = ["#036564", "#550b1d"]
-
-    metric_plot_list = []
-    metricPlotLists = [[], ([], [])]
-
-    for index in range(len(metric_list)):
-        metric_dict = get_metric_for_week_threshold(week_threshold_years_list, metric=metric_list[index],
-                                                    metric_needs_binary_predictions_bool=
-                                                    needs_binary_pred_bool_list[index],
-                                                    metric_needs_one_actual_bool=metric_needs_one_actual_bool_list[
-                                                        index],
-                                                    proba_threshold1=proba_threshold_list[0],
-                                                    proba_threshold2=proba_threshold_list[1])
-
-        if index == 0:
-
-            for index_threshold in range(2):
-                plot_list = []
-                for index_week in range(len(metric_dict['sorted_unique_week_list'])):
-                    plot_list.append(plot_confusion_matrix(
-                        metric_dict['all_true_values_ndarray_per_week_threshold_tuple'][index_threshold][index_week],
-                        metric_dict['all_predictions_ndarray_per_week_threshold_tuple'][index_threshold][index_week],
-                        title='Week ' + str(index_week), threshold_proba=proba_threshold_list[index_threshold]))
-                metricPlotLists[1][index_threshold].extend(plot_list)
-                time.sleep(2)
-
-        metric_plot_list.append(
-            visualize_scores(metric_dict['week_str_list'], metric_dict['metric_value_list'], metric_dict['year_list'],
-                             metric_dict['threshold_list'],
-                             metric_dict['overall_metric_per_week_and_threshold_tuple'][0],
-                             metric_dict['overall_metric_per_week_and_threshold_tuple'][1],
-                             metric_dict['sorted_unique_week_list'], threshold1=threshold_list[0],
-                             threshold2=threshold_list[1], title=title_metric_plot_list[index],
-                             y_axis_label=metric_name_list[index], metric_name=metric_name_list[index],
-                             color_threshold1=threshold_color_list[0],
-                             color_threshold2=threshold_color_list[1]))
-
-    metricPlotLists[0].extend(metric_plot_list)
-
-    with open(os.path.join(os.path.dirname(__file__), r'Data\Plots\metricPlotLists.pkl'), 'wb') as file:
-        pickle.dump(metricPlotLists, file)
-
-    with open(os.path.join(os.path.dirname(__file__), r'Data\Plots\metricPlotLists.pkl'), 'rb') as file:
-        metricPlotLists = pickle.load(file)
-
-    show(row(metricPlotLists[0]))
-    time.sleep(2)
-    show(row(metricPlotLists[1][0]))
-    time.sleep(2)
-    show(row(metricPlotLists[1][1]))
-    time.sleep(2)
-
-    return None
-
-def visualize_confusion_matrices():
-    return None
-
-def get_metric_for_week_threshold(week_threshold_years_list, metric=roc_auc_score, proba_threshold1=0.5, proba_threshold2=0.5,
-                                  metric_needs_one_actual_bool=True, metric_needs_binary_predictions_bool=True):
-    """
-    Possible metrics are: auc, log_loss, accuracy_score, precision, recall, f_score
-
-    :param metric:
-    :return:
-    """
-
-    week_list = []
-    threshold_list = []
-    year_list = []
-
-    actual_values_list = []
-    predictions_list = []
-
-    metric_value_list = []
-    has_ones_year_bool_list = []
-
-    threshold1 = 0.8
-    threshold2 = 7.0
-
-    for per_week_dict in week_threshold_years_list:
-        for per_threshold_dict in per_week_dict['output_by_threshold']:
-
-            if per_threshold_dict['threshold'] != threshold1 and per_threshold_dict['threshold'] != threshold2:
-                raise ValueError('A threshold of the loaded file has an unexpected value.')
-
-            current_year = 2005
-            for pred_proba_true_tuple in per_threshold_dict['output_per_year']:
-
-                if current_year != 2005:
-
-                    if pred_proba_true_tuple[1].sum() != 0:
-                        has_ones_year_bool_list.append(True)
-                    else:
-                        has_ones_year_bool_list.append(False)
-
-                    week_list.append(per_week_dict['week'])  # week'] + 1 depends on week_threshold_years_list format
-                    threshold_list.append(per_threshold_dict['threshold'])
-                    year_list.append(current_year)
-                    actual_values_list.append(pred_proba_true_tuple[1].flatten())
-                    predictions_list.append(pred_proba_true_tuple[0])
-
-                    current_correct_format_predictions_ndarray = pred_proba_true_tuple[0]
-
-                    if metric_needs_binary_predictions_bool:
-                        if per_threshold_dict['threshold'] == threshold1:
-                            current_proba_threshold = proba_threshold1
-                        else:
-                            current_proba_threshold = proba_threshold2
-
-                        current_correct_format_predictions_ndarray = \
-                            (current_proba_threshold <= current_correct_format_predictions_ndarray).astype(int)
-
-                    if pred_proba_true_tuple[1].sum() != 0 or not metric_needs_one_actual_bool:
-                        metric_value_list.append(
-                            metric(pred_proba_true_tuple[1], current_correct_format_predictions_ndarray))
-                    else:
-                        metric_value_list.append(None)
-
-                if current_year != 2008:
-                    current_year += 1
-                else:
-                    current_year += 2
-
-    # The unique list of weeks for the x_range of the figure.
-    sorted_unique_week_list = sorted(list(set(week_list)))
-    sorted_unique_week_list = ['Week ' + str(week) for week in sorted_unique_week_list]
-
-    # Concatenating the true and predicted values per threshold and week.
-
-    all_predictions_ndarray_per_week_threshold1 = get_true_and_predicted_values_per_week(predictions_list,
-                                                                                         threshold_list, week_list,
-                                                                                         sorted_unique_week_list,
-                                                                                         threshold1)
-    all_true_values_ndarray_per_week_threshold1 = get_true_and_predicted_values_per_week(actual_values_list,
-                                                                                         threshold_list, week_list,
-                                                                                         sorted_unique_week_list,
-                                                                                         threshold1)
-    all_predictions_ndarray_per_week_threshold2 = get_true_and_predicted_values_per_week(predictions_list,
-                                                                                         threshold_list,
-                                                                                         week_list,
-                                                                                         sorted_unique_week_list,
-                                                                                         threshold2)
-    all_true_values_ndarray_per_week_threshold2 = get_true_and_predicted_values_per_week(actual_values_list,
-                                                                                         threshold_list, week_list,
-                                                                                         sorted_unique_week_list,
-                                                                                         threshold2)
-
-    # Calculating the scores per threshold and week.
-    score_per_week_threhold1 = []
-    score_per_week_threhold2 = []
-
-    for index in range(len(sorted_unique_week_list)):
-        formatted_predictions1_ndarray = all_predictions_ndarray_per_week_threshold1[index]
-        formatted_predictions2_ndarray = all_predictions_ndarray_per_week_threshold2[index]
-        if metric_needs_binary_predictions_bool:
-            formatted_predictions1_ndarray = (proba_threshold1 <= formatted_predictions1_ndarray).astype(int)
-            formatted_predictions2_ndarray = (proba_threshold2 <= formatted_predictions2_ndarray).astype(int)
-        score_per_week_threhold1.append(metric(all_true_values_ndarray_per_week_threshold1[index],
-                                               formatted_predictions1_ndarray))
-        score_per_week_threhold2.append(metric(all_true_values_ndarray_per_week_threshold2[index],
-                                               formatted_predictions2_ndarray))
-
-    # The str week list for plotting the x_axis.
-    week_str_list = ['Week ' + str(week) for week in week_list]
-
-    if metric_needs_one_actual_bool:
-        # Plotting the different AUC values for each week, threshold and test year.
-        week_str_list = np.array(week_str_list)[has_ones_year_bool_list]
-        metric_value_list = np.array(metric_value_list)[has_ones_year_bool_list]
-        year_list = np.array(year_list)[has_ones_year_bool_list]
-        threshold_list = np.array(threshold_list)[has_ones_year_bool_list]
-
-    # Calculating the overall metric scores for the different years.
-    overall_metric_per_week_and_threshold1 = score_per_week_threhold1
-
-    # At the moment not used
-    # get_average_auc_per_week(auc_list, auc_threshold_list, auc_week_list,
-    # sorted_unique_week_list,
-    # 0.8)
-
-    overall_metric_per_week_and_threshold2 = score_per_week_threhold2
-
-    # At the moment not used
-    # get_average_auc_per_week(auc_list, auc_threshold_list, auc_week_list,
-    # sorted_unique_week_list,
-    # 7.0)
-
-    return {'week_str_list': week_str_list, 'metric_value_list': metric_value_list, 'year_list': year_list,
-            'threshold_list': threshold_list, 'overall_metric_per_week_and_threshold_tuple':
-                (overall_metric_per_week_and_threshold1, overall_metric_per_week_and_threshold2),
-            'sorted_unique_week_list': sorted_unique_week_list, 'all_true_values_ndarray_per_week_threshold_tuple':
-                (all_true_values_ndarray_per_week_threshold1, all_true_values_ndarray_per_week_threshold2),
-            'all_predictions_ndarray_per_week_threshold_tuple': (all_predictions_ndarray_per_week_threshold1,
-                                                                 all_predictions_ndarray_per_week_threshold2)}
-
-
-def get_true_and_predicted_values_per_week(value_list, threshold_list, week_list, sorted_unique_week_list, threshold):
-
-    value_ndarray_per_week_list = [None for _ in sorted_unique_week_list]
-
-    for index in range(len(threshold_list)):
-        if threshold_list[index] == threshold:
-            if value_ndarray_per_week_list[week_list[index]-1] is None:
-                value_ndarray_per_week_list[week_list[index]-1] = value_list[index]
-            else:
-                value_ndarray_per_week_list[week_list[index]-1] = np.hstack([value_ndarray_per_week_list[week_list[index]-1], value_list[index]])
-
-    return value_ndarray_per_week_list
-
-
-def visualize_scores(week_str_list, metric_value_list, year_list, threshold_list,
-                     overall_metric_per_week_and_threshold1, overall_metric_per_week_and_threshold2,
-                     sorted_unique_week_list, threshold1=0.8, threshold2=7.0, title='', y_axis_label='Metric Value',
-                     color_threshold1="#036564", color_threshold2="#550b1d", metric_name='Metric'):
-
-    TOOLS = "pan,wheel_zoom,box_zoom,reset,hover,save"
-
-    p = figure(title=title, x_range=sorted_unique_week_list, x_axis_label='Forecasting Distance',
-               y_axis_label=y_axis_label, tools=TOOLS)
-
-    # Plotting metric data per year for two thresholds.
-    index_bool_threshold1_ndarray = np.array(threshold_list) == threshold1
-    index_bool_threshold2_ndarray = np.logical_not(index_bool_threshold1_ndarray)
-
-    index_list = [index_bool_threshold1_ndarray, index_bool_threshold2_ndarray]
-    color_list = [color_threshold1, color_threshold2]
-    thresh_list = [threshold1, threshold2]
-
-    for index in range(2):
-        week_str_ndarray = np.array(week_str_list)[index_list[index]]
-
-        metric_value_ndarray = np.array(metric_value_list)[index_list[index]]
-
-        year_ndarray = np.array(year_list)[index_list[index]]
-
-        threshold_ndarray = np.array(threshold_list)[index_list[index]]
-
-        metric_data_dict = dict(x=week_str_ndarray, y=metric_value_ndarray, year=year_ndarray,
-                                threshold=threshold_ndarray)
-
-        metric_source = ColumnDataSource(data=metric_data_dict)
-
-        p.x(x='x', y='y', size=10, color=color_list[index], source=metric_source,
-            legend='Per Year ' + metric_name + ': Threshold ' + str(thresh_list[index]), muted_color=color_list[index],
-            muted_alpha=0.0)
-
-    # Plotting the Average over the AUC values for the different years.
-    average1_auc_source = ColumnDataSource(data=dict(x=sorted_unique_week_list, y=overall_metric_per_week_and_threshold1,
-                                                     year=['2005, ..., 2008, 2010, ... 2014'] * len(sorted_unique_week_list),
-                                                     threshold=['0.8'] * len(sorted_unique_week_list)))
-    average2_auc_source = ColumnDataSource(data=dict(x=sorted_unique_week_list, y=overall_metric_per_week_and_threshold2,
-                                                     year=['2005, ..., 2008, 2010, ... 2014'] * len(
-                                                         sorted_unique_week_list),
-                                                     threshold=['7.0'] * len(sorted_unique_week_list)))
-    p.rect(x='x', y='y', width=0.8, height=5, source=average1_auc_source, color=color_threshold1,
-           muted_color=color_threshold1, muted_alpha=0.0, legend=metric_name + ' Overall: Threshold ' + str(threshold1),
-           height_units="screen")
-    p.rect(x='x', y='y', width=0.8, height=5, source=average2_auc_source, color=color_threshold2,
-           muted_color=color_threshold2, muted_alpha=0.0, legend=metric_name + 'Overall: Threshold ' + str(threshold2),
-           height_units="screen")
-
-    # Some formatting and interaction
-    p.xaxis.major_label_orientation = 3.0 / 4
-    p.legend.location = "bottom_left"
-    p.legend.background_fill_alpha = 0.0
-    p.legend.click_policy = "mute"
-
-    hover = p.select_one(HoverTool)
-    hover.point_policy = "follow_mouse"
-    hover.tooltips = [("Year(s)", "@year")]
-
-    return p
-
-
-def plot_confusion_matrix(actual_classes_ndarray, predicted_probabilities_ndarray, threshold_proba=0.05, title=''):
-
-    true_values_ndarray_per_week = actual_classes_ndarray
-    predicted_values_ndarray_per_week = (threshold_proba <= predicted_probabilities_ndarray).astype(int)
-
-    cur_confusion_matrix = confusion_matrix(true_values_ndarray_per_week, predicted_values_ndarray_per_week)
-
-    true_negatives = cur_confusion_matrix[0, 0]
-    false_positives = cur_confusion_matrix[0, 1]
-    false_negatives = cur_confusion_matrix[1, 0]
-    true_positives = cur_confusion_matrix[1, 1]
-
-    # Categories for the x and y-axis.
-    labels_prediction = ('Pred. Class 0', 'Pred. Class 1')
-    labels_truth = ('Class 0', 'Class 1')
-
-    start_length_count_df = pd.DataFrame(
-        [[labels_prediction[0], labels_truth[0], true_negatives], [labels_prediction[1], labels_truth[0], false_positives],
-         [labels_prediction[0], labels_truth[1], false_negatives],
-         [labels_prediction[1], labels_truth[1], true_positives]], columns=['predicted_class', 'true_class', 'count'])
-
-    # Coloring
-    colors = ["#dfccce", "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
-
-    mapper = LogColorMapper(palette=colors, low=0, high=7000)
-
-    source = ColumnDataSource(start_length_count_df)
-
-    p = figure(title=title, x_range=labels_prediction, y_range=list(labels_truth)[::-1],
-               plot_width=200, plot_height=200,
-               x_axis_location="above")
-
-    p.grid.grid_line_color = None
-    p.axis.axis_line_color = None
-    p.axis.major_tick_line_color = None
-    p.axis.major_label_text_font_size = "7pt"
-    p.axis.major_label_standoff = 0
-
-    p.rect(x='predicted_class', y='true_class', width=1, height=1,
-           source=source,
-           fill_color={'field': 'count', 'transform': mapper},
-           line_color=None)
-
-    p.toolbar.logo = None
-    p.toolbar_location = None
-
-    labels = LabelSet(x='predicted_class', y='true_class', text='count', level='glyph',
-                      x_offset=0, y_offset=0, source=source, render_mode='canvas', text_align="center",
-                      text_baseline="middle", text_color="black")
-
-    p.add_layout(labels)
-
-    # q.yaxis.major_label_orientation = math.pi / 4
-
-    return p
-
-
-###
-# End: Metric Figures
-###
-
 
 if __name__ == "__main__":
-     # app.run(debug=True)
+
+    # # For Debugging:
+    # app.run(debug=True)
+
     app.run(port=33507)

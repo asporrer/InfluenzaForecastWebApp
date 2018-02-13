@@ -1,8 +1,140 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Influenza Forecasting{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.css" type="text/css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fpslide.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pageFormattingInfluenza.css') }}">
+{% endblock %}
 
 {% block page_content %}
 
+<h1>Influenza Forecasting</h1>
+
+<div class="divContentTable">
+    <ol>
+        <li> <a class="aContentTable" href="#">Overview</a> </li>
+        <li> <a class="aContentTable" href="{{ url_for('render_influenza_project2') }}" >Influenza Wave Statistics</a> </li>
+        <li> <a class="aContentTable" href="{{ url_for('render_influenza_project3') }}">Forecasting as a Classification Problem</a> </li>
+    </ol>
+</div>
+
+<p>
+    This page and the following two pages provide insight into setting up a machine learning model to forecast the
+    reported number of influenza infections in the sixteen states of Germany based on the following data. The forecast
+    uses a rolling window approach based on the influenza infections per state and for Germany as a whole. As well as
+    the google trends data per state and for Germany as a whole reflecting the frequency of Influenza related search
+    queries. This visualization illustrates and compares the forecast with the actual reported influenza
+    cases.
+</p>
+
+<div id="vis">
+    <button id="play-button">
+        Play
+    </button>
+    <select id="fpsDD"></select>
+    <select id="fpsDDYear"></select>
+</div>
+
+<div class="svg-container">
+	<svg viewBox="0 0 1000 550" preserveAspectRatio="xMinYMin meet" class="svg-content">
+    <svg id="svgId"></svg>
+	</svg>
+</div>
+
+<p>
+    <p class="pSmallHeading">
+        How to interpret the figure?
+    </p>
+    At the top of the figure a drop down menu is located. By selecting a specific state the data and the predictions for
+    the selected state is loaded and can be explored. The coordinate system has dates on the x-axis and the number of
+    reported influenza infections per 100 000 inhabitants on the y-axis. The dotted line represents the present moment.
+    Everything to the left of the dotted line represents the past and everything to the right of the dotted line represents
+    the future. The gray curve represents the actual number of reported influenza cases. The reported influenza cases the
+    the left of the dotted line are known and the reported influenza cases to the right of the dotted line should be predicted
+    based on influenza and google trends data of the past. The forecast provides two predictions. First, a threshold
+    of 0.8 reported influenza infections will or will not be crossed in a specific week. This threshold is an indication
+    for an influenza wave. Second, a threshold of 7.0 will or will not be crossed in a specific week. This threshold
+    indicates a severe influenza wave. The orange line represents the 0.8 threshold and the red line represents the 7.0
+    threshold. If the y coordinate of the line is 0 the prediction is that this threshold will not be crossed otherwise
+    the forecast is that the threshold will be crossed. By hitting the play button the animation starts and the plot moves
+    forward in time and the forecast can be observed. The movement in time can also be controlled by the slider.
+</p>
+
+<p>
+    In the following we will go into more detail about the process of setting up this classification model.
+    <br>
+    "1. Overview" will be treated in next paragraphs. The goal of the project and its benefit as well as the underlying
+    data and the basic structure of the machine learning model will be stated. On the next page we "2. Influenza Wave Statistics"
+    will be addressed by providing some insights into the typical behavior of an influenza wave. For instance the relation
+    between starting date and length of the wave or state-wise differences in the influenza severity are such typical
+    characteristics. These characteristics can be used to narrow down the wave start of a typical influenza wave. If the
+    start week of the wave is known the severity and duration of the week can be estimated. The third page will look at
+    "3. Forecasting as a classification model". This last page will go into more detail about the machine learning aspect
+    of the forecast.
+</p>
+
+<p class="pLargeHeading">
+    1. Overview
+</p>
+
+<p>
+    <p class="pSmallHeading">
+        What is the goal and what are its benefits?
+    </p>
+    The goal of this project is to forecast the reported number of influenza infections on a state level in Germany.
+    The question of whether such a forecast would be possible was posed by a company in the insurance industry. This
+    forecast can be seen as a proof of concept. Benefits of such an forecast are that hospitals and doctor's offices
+    and companies in general are able to plan according to the forecast. The medical sector would be prepared for a
+    higher influx of influenza patients. These patients could be treated more effectively and clogging could be prevent.
+    Further, companies in general could prepare their schedules for an increased number of absences during an influenza
+    wave.
+</p>
+
+<p>
+    <p class="pSmallHeading">
+        What is the general approach to achieve this goal?
+    </p>
+    This problem can be framed as a typical machine learning problem. In the sense that a machine learning model is trained to
+    forecast the influenza progression 1, 2, 3, ... 10, 11 weeks in advance using data of the past ten weeks.
+</p>
+
+<p>
+    <p class="pSmallHeading">
+        What data is available?
+    </p>
+    Researching the internet for promising data led to the following sources.
+    First, the <a href="https://survstat.rki.de/Content/Query/Create.aspx">Robert Koch Institute</a> provides the reported number of influenza cases from 2001 until 2017 in Germany on a state level per week. To detect an influenza infection a laboratory test has to be performed. Therefore only a fraction of people infected by and suffering from influenza are detected. Despite this fact up to a factor the reported number of influenza cases should be a good proxy for the actual number of influenza cases.
+    Second, <a href="https://www.google.org/flutrends/about/">Google Flu Trends</a> provides numbers from 2003 until 2015 reflecting the frequency of influenza related search queries on a state level per week.
+    Third, <a href="ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/historical/">Deutscher Wetterdienst</a> provides weather data for Germany on a daily basis. For instance mean, min, max of temperatur, relative humidity and precipitation.
+</p>
+
+<br>
+
+<p>
+    On the next page we mainly focus on the reported numbers of influenza infections and provide
+    some insights into typical influenza wave behavior. The third page then will go into more detail about the
+    machine learning applied in this forecast.
+</p>
+
+<div class="pagination1">
+  <a href="#">&laquo;</a>
+  <a class="active" href="#">1</a>
+    <a href="{{ url_for('render_influenza_project2') }}">2</a>
+    <a href="{{ url_for('render_influenza_project3') }}">3</a>
+  <a href="{{ url_for('render_influenza_project2') }}">&raquo;</a>
+</div>
+
 {% endblock %}
 
+{% block scripts %}
+{{ super() }}
+<script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.13.min.js"></script>
+<script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script src="{{ url_for('static', filename='js/fpslide.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ajaxscripts.js') }}"> </script>
+{% endblock %}
