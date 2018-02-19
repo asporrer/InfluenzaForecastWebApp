@@ -23,17 +23,17 @@
 
 <p>
     <p class="pSmallHeading">
-        Forecasting as a machine learning problem:
+        Forecasting as a classification problem:
     </p>
     The Forecasting problem can be framed at least in two ways. Either as a regression problem that is to say the exact
     number of influenza infections is predicted x weeks in advance. Or the problem can be framed as a
     classification problem in which the prediction is whether a certain threshold is crossed in the week x. For instance
     are more than 7.0 cases reported per 100 000 inhabitants in five weeks from now. It turns out that classifying
-    whether a certain threshold of reported influenza infections will be crossed can be performed more reliably when
+    whether a certain threshold of reported influenza infections will be crossed can be performed much more reliably when
     compared to the regression problem. Although it would be nice to predict the exact number of infections the
-    classification on the one hand provides sufficient information to predict the start, end and intensity which is
-    crucial. And more importantly it turned out that only framing the problem as a classification problem made it
-    accessible for longer forecasting periods. This is crucial for having enough time to prepare for an influenza wave.
+    classification on the one hand provides sufficient information to predict the start, end and intensity which are the
+    crucial key figures. And more importantly it turned out that only framing the problem as a classification problem made
+    it accessible for longer forecasting periods. This is crucial for having enough time to prepare for an influenza wave.
     <br>
     <br>
     After gaining this insight two thresholds were chosen, namely 0.8 and 7.0 reported cases of influenza per 100 000
@@ -57,13 +57,13 @@
     by the number of inhabitants. As a side note it should be mentioned that including
     <a href="ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/historical/">weather features</a> like
     temperature, humidity and precipitation turned out to not improve the predictive power of the model. Which is
-    interesting when compared to the visual impression of the following plot. After displaying the temperature feature
+    interesting when contrasted with the visual impression of the following plot. After displaying the temperature feature
     by clicking on "Temperature" in the legend a first guess form looking at the plot could be that
     the temperature has significant predictive power with respect to the reported influenza cases. Inferring from the
     plot a strong relation between the google trends score and the influenza infections could be expected. Except for
     the year 2009/2010 the google trends score seems to have a repetitive patter. Comparing the influenza infections on
     a state level with the infection numbers for Germany as a whole shows a strong resemblance with some occasional
-    deviations. To <b>hide/unhide</b> a particular feature just <b>click on the feature name</b> in the legend.
+    deviations. To <b>hide/unhide</b> a particular feature the feature name in the legend just <b>has to be clicked</b>.
 </p>
 
 <div class="wrapperSelectFigure">
@@ -83,19 +83,19 @@
 </div>
 
 <p>
-    Since the weather features did not contribute to the forecast performance only the reported influenza infections and
-    the Google Flu trends data are used as model features in the following way.
+    The weather features did not further improve the forecast performance and are therefore dropped. Only the reported
+    influenza infections and the Google Flu trends data are used as model features in the following way.
     <br>
     <br>
     The above data is available for the period from 2005 until 2015 and the features are constructed using a so called
     rolling window. This means that for each state and each combination of year and week of the year (e.g. state: Bayern,
     year: 2012, week: 33) the influenza and google trends scores of the past ten weeks for the specific state and for
-    Germany as a whole are used as features to predict 1,2, ... 15 weeks in advance for the specific state.
+    Germany as a whole are used as features to predict 1,2, ... 15 weeks in advance for the same state.
 
     So, an example of a feature vector would be the following. If the current state is Bayern, the current year is 2012,
     and the current week of the year is 33 then this would lead to the following feature vector with 40 dimensions.
     For the weeks 24, 25, ... 31, 32, 33 of the year 2012 the reported influenza numbers and the google flu trends
-    scores for Bayern and for Germany as a whole are included.
+    scores for Bayern and for Germany as a whole would be included.
     <br>
     <br>
 </p>
@@ -105,27 +105,29 @@
         How were the model and the features selected?
     </p>
     The first question that arose was whether it would be better to frame the problem as a regression or classification
-    problem. As mention previously although many different combinations of regressors and features were checked none
+    problem. As mention previously although many different combinations of regressors (complete suite of sklearn [KNN,
+    RandomForest, ... , ] and keras [LSTM, CNN, ... ] and features were checked none
     provided satisfying predictions for forecasting periods longer than 2 weeks. As in the classification including
     weather features and features like week of the year and state (one hot encoded) did not improve the model
     performance. Therefore the problem was framed as a classification problem. After initial spot checking of different
     classifiers it became clear that the classification approach yielded satisfying results as we will see in the next
     paragraph. The features were selected by backward elimination. The resulting features were stated in the previous
     paragraph. The best performing model was a fully connected neural net. The interested reader is referred to this
-    github repository containing the code for the model evaluation.
+    <a href="https://github.com/asporrer/InfluenzaForecast.git">github repository</a> containing the code underlying the
+    classification as well as the visualizations.
     <br>
     <br>
 </p>
 
 <p>
     <p class="pSmallHeading">How did the model perform?</p>
-    First, it should be briefly mentioned that this classification problem is imbalanced. As the above feature plot
+    First, it should be mentioned that this classification problem is imbalanced. As the above feature plot
     confirms the percentage of weeks crossing the threshold of 0.8 respectively 7.0 infections per 100 000 inhabitants
     is approximately 17% respectively 4%. To counter the imbalance the training set was enlarged by copying the rare
-    classes such that a ratio of approximately 1:1 is reached. Therefore enough weight is on the rare class when the
-    influence of a false prediction on the overall loss is calculated during training. Still the following metric
-    visualizations will show that the large imbalance in case of the classification associated with the threshold 7.0
-    seems to lead to significantly poorer predictions.
+    classes such that a ratio of approximately 1:1 is achieved. Therefore enough weight is on the rare class when the
+    influence of a false prediction on the overall loss is calculated during training (gradient descent in case of the
+    neural net). Still the following metric visualizations will show that the huge imbalance in case of the classification
+    associated with the threshold 7.0 seems to lead to significantly poorer predictions.
     <br>
     <br>
     The following plot visualizes the results of the cross-validation with respect to different metrics. Each fold of the
@@ -135,8 +137,8 @@
     reason for training one model on all sixteen states is the relatively small number of wave samples. The following
     figure shows the performance of the model as seen in the animation on the first page with respect to accuracy,
     precision, recall, F2 score, ROC AUC and Log Loss. The metrics can simply be selected via the select drop down menu.
-    For each forecasting distance from one to fifteen weeks the bars show the metric score of all cross-validation folds
-    on the validation sets. The x marks the metric score on the validation set of a specific year. Hovering over the x
+    For each forecasting distance from one to fifteen weeks the bars show the overall metric score evaluated on all
+    validation sets simultaneously. The xs mark the metric score on the validation set of a specific year. Hovering over the x
     shows the associated validation year.
 
 </p>
@@ -160,8 +162,8 @@
 <p>
     Almost irrespective of the metric the above plot shows a relatively sharp performance decrease in the first
     four weeks. As mentioned above this effect is stronger for the more imbalanced classification problem associated
-    with the threshold 7.0. After the four weeks the performance decrease slows down. The following visualizations of
-    the confusion matrices with respect to the threshold 0.8 show that the longer the forecasting period the
+    with the threshold 7.0. After the first four weeks the performance decrease slows down. The following visualizations
+    of the confusion matrices with respect to the threshold 0.8 show that the longer the forecasting period the
     more false positives are predicted and the less false negatives. In absolute terms the false positive predictions
     outweigh the false negative predictions. This improves the recall and worsens the precision. The following
     visualizations follow the convention that class 0 corresponds to predicting that the threshold is not crossed and
@@ -213,10 +215,11 @@
     improve the model could be to include more features. For instance first differences or the weekly difference between
     the influenza numbers on a state level and for Germany as a whole could be included. Applying a panel approach could
     also be an interesting exercise. Although this would reduce the number of training examples even further by a factor
-    of 1/16. The interested reader is referred to the github repository where the code for the data preparation, the
-    regression and classification setup from training to selection to visualization can be found. In addition, the
-    repository contains a jupyter notebook which provides some explorative steps. And finally this repository contains
-    the code for this homepage.
+    of 1/16. The interested reader is referred to this <a href="https://github.com/asporrer/InfluenzaForecastWebApp.git">
+    github repository</a> where the code for the data preparation, the classification setup from training to selection
+    to visualization can be found. In addition, the repository contains a jupyter notebook which provides some guidance
+    for exploring the underlying code. And finally this <a href="https://github.com/asporrer/InfluenzaForecast.git">
+    github repository</a> contains the code for this homepage.
 </p>
 
 <div class="pagination1">

@@ -22,14 +22,18 @@
 </div>
 
 <p>
-    As mentioned on the previous page we now focus on the statistics of the number of reported influenza infections on a state level.
+    As mentioned on the previous page the focus is now on the statistics of the state-wise number of reported influenza
+    infections.
 </p>
 
 <p>
     First let's visualize the reported influenza cases per 100 000 inhabitants in the sixteen states of Germany.
-    The plot is at first sight a bit messy. To <b>hide/unhide</b> particular states just <b>click on the state</b> in the legend. This will make the plot clearer.
-    But this plot although a bit messy at first glance conveys at least two important messages. First, we can see that influenza occurs in waves. Approximately one wave per winter. The waves can rise and fall sharply.
-    Second, the progressions of the waves in different states seem to coincide roughly. Thus a rising number of reported influenza infections in one state is an indicator of the rise of reported influenza infections in other states with currently low infection numbers.
+    The plot is at first sight a bit messy. To <b>hide/unhide</b> particular states just <b>click on the state</b> in
+    the legend. This will make the plot clearer. But this plot although a bit messy at first glance conveys at least two
+    important messages. First, we can see that influenza occurs in waves. Approximately one wave per winter. The waves
+    can rise and fall sharply. Second, the progressions of the waves in different states seem to coincide roughly. Thus
+    a rising number of reported influenza infections in one state is an indicator of the rise of reported influenza
+    infections in other states with currently low infection numbers.
 </p>
 
 <div id="vanillaDiv" class="scrollableFigureDiv" align="center">
@@ -38,15 +42,15 @@
 </div>
 
 <p>
-    The next plot simply shows the state wise summed number of reported influenza infections where the outlier year 2009
-    where the swine flu occured is excluded. The plot shows significant
-    differences between states. Sachsen-Anhalt has roughly eight times as many infections from 2005 till 2015 when compared to Bremen.
-    The reasons behind these difference are not obvious. Difference in vaccination or reporting behavior could be potential
-    factors. An interesting result from training a machine learning model was that grouping the states according to their
-    overall number of reported cases and training different models per group did worsen the predicitive power. This applies
-    to both the classification approach as well as the regression ansatz. The group separation is indicated by the black
-    horizontal lines. One reason for this could simply be that the decrease in training examples by only considering
-    examples of one group outweighs the more similar influenza intensity of the members of one group.
+    The next plot simply shows the state-wise summed number of reported influenza infections where the outlier year 2009
+    (swine flu epidemic) is excluded. The plot shows significant differences between states. Sachsen-Anhalt has roughly
+    eight times as many reported infections from 2005 till 2015 when compared to Bremen. The reasons behind these
+    difference are not obvious. Difference in vaccination or reporting behavior could be potential factors. An
+    interesting result from training a regression model was that grouping the states according to their overall number
+    of reported cases and training different models per group did worsen the predictive power. This applies
+    to both, classification and regression. The separation of the groups is indicated by the black horizontal lines.
+    One reason for this could simply be that the decrease in training examples by only considering examples of one group
+    outweighs the greater similarity in influenza intensity among the members of one group.
 </p>
 
 <div align="center" class="scrollableFigureDiv">
@@ -55,14 +59,17 @@
 </div>
 
 <p>
-    The below selection box is a so called multiselect box. That is to say by pressing and holding the left mouse botton multiple states can be selected.
-    By pressing and holding ctrl individual states can be selected or deselected by clicking on them and finally the data on the right is updated by clicking the
-    "Calculate Histogram" button. Each of the four histograms below contains a black curve. This black curve is the result of a kernel density estimation and represents the estimated
-    density of the underlying quantity. The quantities wave start and wave end referred to in these plots are defined as the first week and the last week of the cold
-    weather season where more than 2.0 reported influenza cases per 100 000 inhabitants occurred. Again the outlier year 2009 is not included. These plot should provide an
-    overview on the distribution of the wave start, end, the severity and the duration of the wave. Were the duration is simple wave end - wave start in calender weeks.
-    The severity of the wave is defined as the maximal height of the wave. It should be pointed out that the plot in the upper left corner narrows down the period
-    in which a wave start is likely. Inferring from the histogram this period is the first eight weeks of the year.
+    The below selection box is a so called multiselect box. That is to say by pressing and holding the left mouse botton
+    multiple states can be selected. By pressing and holding ctrl individual states can be selected or deselected by
+    clicking on them. Finally, by clicking the "Calculate Histogram" button the data on the right is updated. Each of
+    the four histograms below contains a black curve. This black curve is the result of a kernel density estimation and
+    represents the estimated density of the underlying quantity. The wave start and wave end are defined as the first
+    week and the last week of the cold weather season in which more than 2.0 reported influenza cases per 100 000
+    inhabitants occurred. Again the outlier year 2009 is not included. These plot should provide an overview on the
+    distribution of the wave start, end, the severity and the duration of the wave. Were the duration is simple
+    wave end - wave start in calender weeks. The severity of the wave is defined as the maximal height of the wave.
+    It should be pointed out that the plot in the upper left corner narrows down the period in which a wave start is
+    likely. Inferring from the histogram this period is the first eight weeks of the year.
 </p>
 
 <div class="wrapperSelectFigure4Plots">
@@ -83,12 +90,14 @@
 </div>
 
 <p>
-    As mentioned above the below selection box is a so called multiselect box. By pressing and holding the left mouse botton multiple states can be selected.
-    By pressing and holding ctrl individual states can be selected or deselected by clicking on them and finally the data on the right is updated by clicking the
-    "Calculate Histogram" button. As seen above the distribution of the wave start has most mass on the first eight weeks of the year.
-    The following two plots show that there is a relation between the wave start and the wave severity and between the
-    wave start and the wave length. In both cases this relation is roughly that the earlier the wave starts the more severe
-    and longer the it is. Thus the typical period for a severe influenza outbreak can be narrowed down further.
+    As mentioned above the below selection box is a so called multiselect box. By pressing and holding the left mouse
+    button multiple states can be selected. By pressing and holding ctrl individual states can be selected or deselected
+    by clicking on them. Finally the data in the right figure is updated by clicking the "Calculate Histogram" button.
+    As seen above the distribution of the wave start has most mass on the first eight weeks of the year. The following
+    two plots show that there is a relation between the wave start and the wave severity and between the wave start and
+    the wave length. In both cases this relation is roughly that the earlier the wave starts the more severe
+    and longer it is. Thus the typical period for a severe influenza outbreak can be narrowed down further to the first
+    weeks of the year.
 </p>
 
 <div class="wrapperSelectFigure2Plots">
@@ -110,11 +119,13 @@
 
 <p>
     This page focused on the reported influenza cases per state. The main results were that influenza infections occur in waves.
-    The start and the end of these waves are quite similar in the different states of Germany but the severity and the overall
-    number of infections varies strongly between states. Only a small portion of the wave starts occur outside the period from
-    the second till the 8th week of the year and the tendency is that the earlier a wave starts the longer it lasts and the more severe it is.
+    The start and the end of these waves are quite similar in different states of Germany but the severity and the overall
+    number of infections varies strongly between states. Only a small portion of the wave starts occur outside the period
+    from the second to 8th week of the year and the tendency is that the earlier a wave starts the longer it lasts and
+    the more severe it is.
     <br>
-    On the next page we will shift our focus on the classification model.
+    <br>
+    On the next page the focus is shifted to the classification model.
 </p>
 
 <div class="pagination1">

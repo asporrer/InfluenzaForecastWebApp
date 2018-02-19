@@ -454,7 +454,7 @@ d3.csv("/static/data/fpslide/wholeDateLine" + year + ".csv", prepareWholeDatelin
                             .style("stroke-dasharray", ("3, 7"));
 
                         svg.append("text")
-                           .text(" More than 4 Week in Advance")
+                           .text(" More than 4 Weeks in Advance")
                            .attr("text-anchor", "left")
                            .attr("x", xScale(datelineArray[currentIndex+4]) + (xScaleRangeEnd - xScaleRangeStart)/40)
                            .attr("y", yScale(yMaxValue))
@@ -473,7 +473,7 @@ d3.csv("/static/data/fpslide/wholeDateLine" + year + ".csv", prepareWholeDatelin
                             .style("stroke-dasharray", ("3, 11"));
 
                         svg.append("text")
-                           .text(" More than 10 Week in Advance")
+                           .text(" More than 10 Weeks in Advance")
                            .attr("text-anchor", "left")
                            .attr("x", xScale(datelineArray[currentIndex+10]) + (xScaleRangeEnd - xScaleRangeStart)/40)
                            .attr("y", yScale(yMaxValue))
@@ -558,11 +558,6 @@ function updatePlotBasedOnSelection(stateString, yearString) {
             .attr("x1", sliderDatesScale.range()[0])
             .attr("x2", sliderDatesScale.range()[1])
             .attr("cx", slider_range_start);
-
-        label
-            .text(formatDate(startDate))
-            .attr("x", slider_range_start);
-
 
         // Array length to calculate the ticks
         var array_length = datelineArray.length

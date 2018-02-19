@@ -357,17 +357,17 @@ def plot_results(title_param, x_axis_title_param, y_axis_title_param, dates_list
     return p
 
 
-def visualize_overall_reported_cases(data_df):
+def visualize_overall_reported_cases(input_df):
     """
     This function visualizes the cumulative number of reported influenza infections for each of the sixteen
     states of Germany from 2005 till 2015. The period from the 25th week of 2009 till the 24th week of 2010 is excluded.
     In this period the "outlier wave" (swine flu) occurred.
 
-    :param data_df: A pandas.DataFrame, containing a rows with names 'state', 'influenza_week-1'.
+    :param input_df: A pandas.DataFrame, containing a rows with names 'state', 'influenza_week-1'.
     :return: A bokeh figure, visualizing the sum of the overall reported influenza infections for each of the sixteen
     states of Germany.
     """
-    input_list = get_number_of_reported_infected_per_state(data_df)
+    input_list = get_number_of_reported_infected_per_state(input_df)
 
     states = [state_sum[0] for state_sum in input_list]
     sum_of_rep_cases = [state_sum[1] for state_sum in input_list]
