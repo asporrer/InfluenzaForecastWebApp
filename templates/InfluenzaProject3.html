@@ -215,11 +215,14 @@
     improve the model could be to include more features. For instance first differences or the weekly difference between
     the influenza numbers on a state level and for Germany as a whole could be included. Applying a panel approach could
     also be an interesting exercise. Although this would reduce the number of training examples even further by a factor
-    of 1/16. The interested reader is referred to this <a href="https://github.com/asporrer/InfluenzaForecastWebApp.git">
-    github repository</a> where the code for the data preparation, the classification setup from training to selection
-    to visualization can be found. In addition, the repository contains a jupyter notebook which provides some guidance
-    for exploring the underlying code. And finally this <a href="https://github.com/asporrer/InfluenzaForecast.git">
-    github repository</a> contains the code for this homepage.
+    of 1/16. Another approach could be to feed the predictions of the one week forecast as a feature into the two week
+    forecast and so on. Although this data set is relatively small transfer learning by retraining the last layer of
+    above model to adapt to the state specific influenza behavior could also be an interesting ansatz. The interested reader
+    is referred to this <a href="https://github.com/asporrer/InfluenzaForecastWebApp.git">github repository</a> where
+    the code for the data preparation, the classification setup from training to selection to visualization can be
+    found. In addition, the repository contains a jupyter notebook which provides some guidance for exploring the
+    underlying code. And finally this <a href="https://github.com/asporrer/InfluenzaForecast.git">github repository</a>
+    contains the code underlying this homepage.
 </p>
 
 <div class="pagination1">
