@@ -91,7 +91,7 @@ svg.append("text")
    .attr("fill", "black");
 
 svg.append("text")
-   .text("# Reported Influenza Infections")
+   .text("# Reported Influenza Infections per 100 000 Inhabitants")
    .attr("text-anchor", "middle")
    .attr("font-family", "sans-serif")
    .attr("font-size", axisLabelTextSize)
